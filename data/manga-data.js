@@ -2,7 +2,12 @@
  *
  * 结构说明：
  * - slug：URL 标识，建议用英文短横线，全站唯一
+ * - title：站内展示标题（可用中文译名）
+ * - jpTitle：可选，日文原名
+ * - altTitles：别名数组
  * - cover：漫画封面（允许展示），用 assets/covers/ 下的文件或外链
+ * - chapters[].title：章节标题（特典等 .5 章节照常写，例如“第5.5话”）
+ * - chapters[].order：排序用数字；特典章节可用 5.5 这样的 .5 小数
  * - chapters[].kiss[]：亲吻场景记录
  * - chapters[].nudity[]：露点场景记录（只记录信息，不放图）
  * - chapters[].kissUnknown / nudityUnknown：可选，true 或 1 表示该章对应情况未知，
@@ -45,6 +50,18 @@
               note: "夜晚独自淋浴的镜头，露出肩线与胸部侧面，有乳头轮廓的描写。"
             }
           ]
+        },
+        {
+          id: "ch1.5",
+          title: "第1.5话 特典 排练休息时",
+          order: 1.5,
+          kiss: [
+            {
+              characters: "小夜 × ひなた",
+              note: "特典短篇：排练休息时两人分食面包，ひなた亲掉小夜嘴角的面包屑。"
+            }
+          ],
+          nudity: []
         },
         {
           id: "ch2",

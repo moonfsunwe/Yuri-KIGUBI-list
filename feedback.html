@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>提交数据 | KIGUBI LIST</title>
-  <meta name="description" content="新增漫画或修改已有漫画的亲吻/露点场景信息，上传佐证图片。图片仅用于维护者审核，不会公开展示。">
+  <meta name="description" content="新增漫画或修改已有漫画的亲吻/露点场景信息。填写表单后自动整理为 GitHub Issue 提交。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -26,7 +26,6 @@
       <nav class="nav-links" aria-label="主导航">
         <a data-nav href="index.html">数据检索</a>
         <a data-nav href="feedback.html">提交数据</a>
-        <a data-nav href="admin.html">审核流程</a>
       </nav>
     </div>
   </header>
@@ -36,7 +35,7 @@
       <p class="section-kicker">Submit Data</p>
       <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">提交场景数据</h1>
       <p class="form-intro">
-        新增漫画或修改已有漫画的亲吻/露点记录。佐证图片<strong>仅用于维护者审核</strong>，不会在网站上展示。
+        提交数据需要拥有 GitHub 账号：填写下方表单后，系统会自动整理成 GitHub Issue 内容，确认后跳转到 GitHub 提交。
       </p>
 
       <div class="setup-notice" id="setupNotice">
@@ -54,21 +53,21 @@
 
         <!-- 新增漫画 -->
         <section class="fb-panel active" id="panelNew" aria-label="新增漫画">
-          <div class="field">
-            <label for="fbkCoverInput">封面图<span class="field-hint">选填</span></label>
-            <div class="file-drop">
-              <label class="file-btn" for="fbkCoverInput">上传封面图</label>
-              <input class="input" id="fbkCoverInput" type="file" accept="image/*" hidden>
-              <span class="file-limits">封面仅用于帮助维护者识别漫画；单张不超过 10MB。</span>
+          <div class="form-row">
+            <div class="field">
+              <label for="fbkNewTitle">标题<span class="field-hint">必填</span></label>
+              <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题（站内展示用）">
             </div>
-            <div class="cover-preview" id="coverPreview" style="display:none"></div>
-            <p class="file-error" id="coverError"></p>
+            <div class="field">
+              <label for="fbkNewJpTitle">日文原名<span class="field-hint">必填</span></label>
+              <input class="input" id="fbkNewJpTitle" name="newJpTitle" placeholder="例：星屑シンフォニア">
+            </div>
           </div>
 
           <div class="form-row">
             <div class="field">
-              <label for="fbkNewTitle">标题<span class="field-hint">必填</span></label>
-              <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题">
+              <label for="fbkNewAltTitles">别名<span class="field-hint">选填 · 多个用逗号分隔</span></label>
+              <input class="input" id="fbkNewAltTitles" name="newAltTitles" placeholder="例：Stardust Symphonia, 星尘交响曲">
             </div>
             <div class="field">
               <label for="fbkNewStatus">连载状况<span class="field-hint">选填</span></label>
@@ -87,13 +86,13 @@
               <input class="input" id="fbkNewAuthor" name="newAuthor" placeholder="作者名">
             </div>
             <div class="field">
-              <label for="fbkNewChapters">几章<span class="field-hint">必填</span></label>
+              <label for="fbkNewChapters">几章<span class="field-hint">必填 · 正篇话数</span></label>
               <input class="input" id="fbkNewChapters" name="newChapters" type="number" min="1" max="300" inputmode="numeric" placeholder="例如：3">
             </div>
           </div>
 
           <p class="chapter-cells-title">章节情况</p>
-          <p class="chapter-cells-hint">默认全部未知（蓝色问号）。点击色块左上半（亲吻）或右下半（露点）切换：未知 → 有 → 无。</p>
+          <p class="chapter-cells-hint">默认全部未知（蓝色问号）。点击色块左上半（亲吻）或右下半（露点）切换：未知 → 有 → 无；把鼠标移到相邻章节之间的 +，可插入 .5 特典章节。</p>
           <div class="chapter-cells" id="newChapterCells"></div>
         </section>
 
@@ -106,7 +105,7 @@
           </div>
 
           <p class="chapter-cells-title">章节情况</p>
-          <p class="chapter-cells-hint">粉色/紫色 = 有记录；灰色 = 无记录；蓝色问号 = 未知（仅显示已有的未知，不能修改成未知）。点击半边仅在“有 / 无”之间切换。</p>
+          <p class="chapter-cells-hint">粉色/紫色 = 有记录；灰色 = 无记录；蓝色问号 = 已有未知（不能修改成未知）。点击半边仅在“有 / 无”之间切换；相邻整数章节之间的 + 可插入 .5 特典章节。</p>
           <div class="chapter-cells" id="modifyChapterCells"></div>
 
           <div class="field">
@@ -115,25 +114,9 @@
           </div>
         </section>
 
-        <div class="field">
-          <span class="field-label">佐证图片<span class="field-hint">选填 · 每张必须备注对应章节 · 最多 30 张</span></span>
-          <div class="file-drop">
-            <label class="file-btn" for="fbkFiles">选择图片</label>
-            <input class="input" id="fbkFiles" type="file" accept="image/*" multiple hidden>
-            <span class="file-limits" id="fileLimitsText">支持 jpg / png / webp，单张不超过 10MB。图片不会公开展示。</span>
-          </div>
-          <div class="preview-grid" id="previewGrid"></div>
-          <p class="file-error" id="fileError"></p>
-        </div>
-
-        <div class="field">
-          <label for="fbkContact">联系方式<span class="field-hint">可选 · 用于回复审批结果</span></label>
-          <input class="input" id="fbkContact" name="contact" type="text" placeholder="邮箱 / Telegram / 其它（不公开）">
-        </div>
-
         <label class="check-row">
           <input type="checkbox" id="fbkConsent" name="consent">
-          <span>我确认上传的图片仅用于佐证该条目，本人有权提供，且同意维护者仅将其用于审核核对。</span>
+          <span>我确认提交的内容会公开显示在 GitHub Issue 中，且本人有权提供这些信息。</span>
         </label>
 
         <div class="submit-row">
@@ -146,8 +129,8 @@
         <div class="modal-card" role="dialog" aria-labelledby="issueModalTitle">
           <h2 id="issueModalTitle" style="margin:0 0 8px; font-family:var(--font-display);">确认投稿内容</h2>
           <p class="modal-hint">
-            点击下方绿色按钮将打开 GitHub Issue 页面（提交框已预填内容）。<br>
-            <strong>图片不会自动上传</strong>：请在 GitHub Issue 编辑器里，按下方图片清单手动拖入对应图片。
+            点击下方按钮将打开 GitHub Issue 页面（标题、正文和标签已根据表单预填）。<br>
+            请在 GitHub 中确认内容后点击 <strong>Submit new issue</strong>。
           </p>
           <label for="issueBodyPreview" class="field-label">将提交的 Issue 内容</label>
           <textarea class="textarea" id="issueBodyPreview" readonly style="height:200px; margin-top:6px;"></textarea>
@@ -159,10 +142,7 @@
         </div>
       </div>
 
-      <p class="privacy-note" id="privacyNote">
-        🔒 隐私说明：佐证图片通过第三方表单服务直接发送到维护者邮箱，本站不存储、不公开展示。
-        数据上架前由维护者人工核对，通过后仅把文字信息写入 <code>data/manga-data.js</code>。
-      </p>
+      </div>
     </div>
   </main>
 
@@ -176,12 +156,7 @@
       <div>
         <strong>导航</strong>
         <p><a href="index.html">数据检索</a><br>
-           <a href="feedback.html">提交数据</a><br>
-           <a href="admin.html">审核流程</a></p>
-      </div>
-      <div>
-        <strong>说明</strong>
-        <p>佐证图片仅用于维护者审核，<br>不会在网站展示或保存。</p>
+           <a href="feedback.html">提交数据</a></p>
       </div>
     </div>
   </footer>

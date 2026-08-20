@@ -1,137 +1,45 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>审核流程 | KIGUBI LIST</title>
-  <meta name="description" content="维护者审核提交数据与更新漫画场景数据的流程说明。">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-  <a class="skip-link" href="#main">跳到主要内容</a>
+KIGUBI LIST — 审核流程（维护者文档）
 
-  <header class="site-header">
-    <div class="nav-inner">
-      <a class="brand" href="index.html" aria-label="KIGUBI LIST 首页">
-        <span class="brand-mark" aria-hidden="true">💋</span>
-        <span class="brand-text">
-          <span class="brand-name">KIGUBI LIST</span>
-          <span class="brand-sub">漫画场景信息索引</span>
-        </span>
-      </a>
-      <nav class="nav-links" aria-label="主导航">
-        <a data-nav href="index.html">数据检索</a>
-        <a data-nav href="feedback.html">提交数据</a>
-        <a data-nav href="admin.html">审核流程</a>
-      </nav>
-    </div>
-  </header>
+本文件为纯文本说明。日常审核可在 GitHub Issues 中完成。
 
-  <main id="main" class="wrap page">
-    <div class="prose-shell">
-      <p class="section-kicker">Maintainer</p>
-      <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">审核与上架流程</h1>
-      <p class="form-intro">
-        这是一个纯静态站点（GitHub Pages）。路人提交的数据会通过表单服务发送到维护者邮箱；
-        维护者人工核对后，把通过的文字信息写入 <code>data/manga-data.js</code> 并部署，全站自动更新。
-      </p>
+第一、首次配置
 
-      <div class="prose">
-        <h2>第 1 步 · 配置数据提交通道（首次必做）</h2>
-        <p>打开 <code>data/config.js</code>，选择一种后端：</p>
-        <h3>方案 A：GitHub Issue（不暴露任何 Token，当前默认，推荐）</h3>
-        <ol>
-          <li>在 GitHub 仓库中先创建三个标签：<code>submission</code>、<code>pending</code>、<code>approved</code>。</li>
-          <li>把 <code>feedback.backend</code> 设为 <code>"githubIssue"</code>。</li>
-          <li>把仓库填入 <code>feedback.githubIssueRepo</code>，格式为 <code>拥有者/仓库名</code>。</li>
-          <li>可自定义 <code>feedback.githubIssueLabels</code>，默认 <code>["submission", "pending"]</code>。</li>
-        </ol>
-        <p>访客提交数据时，前端会把表单内容整理成 Issue 标题和正文，并弹出确认框；访客点击「前往 GitHub 提交 Issue」后，在新 Issue 页面里手动拖入佐证图片并点击 <code>Submit new issue</code>。此流程不需要任何 Token 或后端服务。</p>
-        <h3>方案 B：Web3Forms（发送到邮箱）</h3>
-        <ol>
-          <li>访问 web3forms.com，用邮箱领取 Access Key。</li>
-          <li>把 <code>feedback.backend</code> 改为 <code>"web3forms"</code>，并把 Key 填入 <code>feedback.web3formsAccessKey</code>。</li>
-        </ol>
-        <h3>方案 C：Formspree（发送到邮箱）</h3>
-        <ol>
-          <li>在 formspree.io 创建表单，得到 <code>https://formspree.io/f/xxxx</code>。</li>
-          <li>把 <code>feedback.backend</code> 改为 <code>"formspree"</code>，并把地址填入 <code>feedback.formspreeEndpoint</code>。</li>
-        </ol>
-        <p>配置完成后，数据提交页的提交按钮会自动启用。</p>
+1. 在 GitHub 仓库中创建三个标签：submission、pending、approved。
+2. 打开 data/config.js，确认：
+   - backend 设为 "githubIssue"
+   - githubIssueRepo 填成你的仓库路径，例如 moonfsunwe/Yuri-KIGUBI-list
+   - githubIssueLabels 保持 ["submission", "pending"]
+3. 提交推送后，数据提交页的按钮会自动启用。
 
-        <h2>第 2 步 · 审核提交数据</h2>
-        <ul>
-          <li><strong>GitHub Issue 模式</strong>：会收到带 <code>submission</code> 和 <code>pending</code> 标签的 Issue，标题为 <code>[投稿] …</code>，正文是整理好的表单内容。审核时在 GitHub 上把标签 <code>pending</code> 改为 <code>approved</code> 并关闭 Issue。</li>
-          <li><strong>邮箱模式</strong>：邮箱里会收到主题为 <code>[KIGUBI数据] …</code> 的邮件，含数据类型（新增/修改）、漫画、章节色块状态、修改原因和佐证图片（每张带章节备注）。</li>
-          <li>核对漫画、章节与描述是否准确；佐证图片只用于核对，不对外。</li>
-          <li>无法确认的条目直接忽略；确认无误后进入第 3 步。</li>
-        </ul>
+第二、访客投稿
 
-        <h2>第 3 步 · 写入数据</h2>
-        <p>打开 <code>data/manga-data.js</code>，按现有结构插入记录。</p>
-<pre><code>// 已有漫画：在对应 chapter 的 kiss 或 nudity 数组中追加
-{
-  characters: "角色 A × 角色 B",
-  note: "场景与镜头的一句话描述（不要出现图片外链或资源链接）。"
-}</code></pre>
-        <p>如果漫画尚未收录，复制一个完整的漫画对象，替换 <code>slug</code>（英文唯一）、<code>cover</code>（封面图可放 <code>assets/covers/</code>）和章节信息。</p>
+1. 访客打开 feedback.html，填写新增漫画或修改已有漫画。
+   - 新增漫画：需要标题、日文原名、几章，可填写别名、连载状况、作者。
+   - 章节色块：未知 → 有 → 无，相邻整数章节之间可插入 .5 特典章节。
+   - 修改漫画：搜索选择漫画后修改章节色块，可插入 .5 特典章节，必须写修改原因。
+2. 点击「生成 GitHub Issue」后，会弹窗预览整理好的 Issue 内容。
+3. 访客点击「前往 GitHub 提交 Issue」，在新 Issue 页面点击 Submit new issue。
+4. 注意：访客需要拥有 GitHub 账号。
 
-        <h2>第 4 步 · 部署</h2>
-        <ul>
-          <li>推送到 GitHub 仓库的 <code>main</code> 分支（或你设置了 GitHub Pages 的分支）。</li>
-          <li>GitHub Pages 构建完成后，首页与详情页自动显示新条目。</li>
-        </ul>
+第三、审核投稿
 
-        <h2>首页筛选与章节模式说明</h2>
-        <ul>
-          <li>首页左侧的“条件筛选”支持：<strong>连载中 / 有亲吻 / 有露点</strong>，可多选叠加。</li>
-          <li>详情页默认使用<strong>折叠模式</strong>：每个章节只显示一个数字色块，左上三角代表亲吻、右下三角代表露点，有色表示该章有对应记录。</li>
-          <li>点击章节色块或切换到<strong>详细模式</strong>，可查看该章亲吻 / 露点的完整文字记录。</li>
-        </ul>
+1. 在 GitHub Issues 中查看带 submission / pending 标签的投稿。
+2. 核对标题、日文原名、别名、章节状态、修改原因与变更对照。
+3. 通过：把标签 pending 改成 approved，然后选择 Close issue。
+4. 不通过：直接关闭 Issue 即可，无需改 approved。
 
-        <h2>内容边界（重要）</h2>
-        <ul>
-          <li>允许：漫画封面图、章节号、角色名、文字描述。</li>
-          <li>不允许：具体场景图片、漫画资源链接、下载链接、图床外链、露点截图。</li>
-          <li>露点场景只描述“哪个章节、什么情境、什么镜头角度”，<strong>不配图</strong>。</li>
-          <li>佐证图片只存在于你的邮箱/表单服务后台，绝不放入仓库。</li>
-        </ul>
+第四、写入数据
 
-        <h2>本地预览</h2>
-        <p>直接双击 <code>index.html</code> 即可预览；数据以 JS 文件加载，无需构建。</p>
-<pre><code># 或使用任意静态服务器
-python -m http.server 8080
-# 打开 http://localhost:8080</code></pre>
-      </div>
-    </div>
-  </main>
+1. 打开 data/manga-data.js，按现有结构插入记录。
+2. slug 全站唯一，建议英文短横线。
+3. 章节 order 支持小数，例如 5.5 表示第 5.5 话特典。
+4. kiss / nudity 数组中的场景对象只写 characters 和 note，不要出现资源链接。
+5. 可选字段：kissUnknown / nudityUnknown 可设为 true 或 1，表示该章节对应情况未知。
+6. 可选字段 jpTitle 写日文原名，altTitles 写别名。
+7. 推送部署后全站自动更新。
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="grow">
-        <strong>KIGUBI LIST</strong>
-        <p>按漫画、按章节收录亲吻与露点场景信息。所有条目仅为文字索引：无资源链接、无场景图片（漫画封面除外）。</p>
-        <p>© <span data-year>2025</span> · 由维护者审核整理</p>
-      </div>
-      <div>
-        <strong>导航</strong>
-        <p><a href="index.html">数据检索</a><br>
-           <a href="feedback.html">提交数据</a><br>
-           <a href="admin.html">审核流程</a></p>
-      </div>
-      <div>
-        <strong>说明</strong>
-        <p>佐证图片仅用于维护者审核，<br>不会在网站展示或保存。</p>
-      </div>
-    </div>
-  </footer>
+第五、Issue 标签维护
 
-  <script src="data/config.js"></script>
-  <script src="data/manga-data.js"></script>
-  <script src="assets/js/app.js"></script>
-</body>
-</html>
+1. 新投稿默认标签：submission、pending。
+2. 审核通过后：去掉 pending，加上 approved。
+3. 如仓库标签颜色想统一，可以在 GitHub Issues 的 Labels 设置中调整：例如 submission 绿色、pending 橙色、approved 紫色。

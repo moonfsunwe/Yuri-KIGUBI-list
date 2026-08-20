@@ -1,15 +1,14 @@
-/* 数据提交页：新增漫画 / 修改已有漫画，文字 + 佐证图片（每张必须注明章节） */
+/* 数据提交页：新增漫画 / 修改已有漫画，整理后生成 GitHub Issue（或邮件提交）。 */
 (function () {
   "use strict";
 
   var A = window.KIGUBI_APP;
   var CFG = A.CFG;
   var FB = CFG.feedback || {};
-  var pendingFiles = [];   // [{ file, chapterNote }]
-  var coverFile = null;    // 新增漫画的封面（选填）
   var mode = "new";        // new | modify
 
-  var newChapterStates = [];    // [{ kiss, nudity }]
+  var newChapterStates = [];    // [{ kiss, nudity, label }]
+  var newBaseCount = 0;         // 正篇话数（不含插入的 .5 特典）
   var modifyCurrent = [];       // [{ kiss, nudity }]
   var modifyOriginal = [];      // [{ kiss, nudity }]
   var selectedManga = null;
@@ -33,18 +32,8 @@
 
   function updateBackendUi() {
     var submit = A.qs("#fbkSubmit");
-    var limits = A.qs("#fileLimitsText");
-    var privacy = A.qs("#privacyNote");
-
-    if (isGitHubMode()) {
-      if (submit) submit.textContent = "生成 GitHub Issue";
-      if (limits) limits.textContent = "图片仅在本地整理与预览；提交后请在 GitHub Issue 编辑器里手动拖入对应图片。";
-      if (privacy) privacy.innerHTML = "🔒 隐私说明：本模式不把图片或数据发到本站服务器；数据会整理成 GitHub Issue URL 由你确认后提交，GitHub 账号与仓库权限由 GitHub 管理。";
-    } else {
-      if (submit) submit.textContent = "提交数据";
-      if (limits) limits.textContent = "支持 jpg / png / webp，单张不超过 10MB。图片不会公开展示。";
-      if (privacy) privacy.innerHTML = "🔒 隐私说明：佐证图片通过第三方表单服务直接发送到维护者邮箱，本站不存储、不公开展示。数据上架前由维护者人工核对，通过后仅把文字信息写入 <code>data/manga-data.js</code>。";
-    }
+    if (!submit) return;
+    submit.textContent = isGitHubMode() ? "生成 GitHub Issue" : "提交数据";
   }
 
   function init() {
@@ -65,8 +54,6 @@
     bindTabs();
     populateModifySelect();
     bindNewChapterCount();
-    bindCoverInput();
-    bindImages();
     renderNewChapterCells();
 
     var params = new URLSearchParams(window.location.search);
@@ -131,24 +118,48 @@
     if (input) input.addEventListener("input", renderNewChapterCells);
   }
 
+  function isNormalChapterLabel(label) {
+    return /^\d+$/.test(String(label));
+  }
+
   function renderNewChapterCells() {
     var container = A.qs("#newChapterCells");
     if (!container) return;
 
     var count = Math.max(0, Math.min(300, parseInt(A.qs("#fbkNewChapters").value, 10) || 0));
-    var old = newChapterStates;
-    var next = [];
-    for (var i = 0; i < count; i++) {
-      next.push(old[i] || { kiss: "unknown", nudity: "unknown" });
+    if (count !== newBaseCount) {
+      newBaseCount = count;
+      newChapterStates = [];
+      for (var n = 0; n < count; n++) {
+        newChapterStates.push({ kiss: "unknown", nudity: "unknown", label: String(n + 1) });
+      }
     }
-    newChapterStates = next;
 
     container.textContent = "";
+
     newChapterStates.forEach(function (state, index) {
       container.appendChild(buildEditCell(index, state.kiss, state.nudity, function (half) {
         cycleState(state, half);
         renderNewChapterCells();
-      }));
+      }, state.label));
+
+      var next = newChapterStates[index + 1];
+      if (next && isNormalChapterLabel(state.label) && isNormalChapterLabel(next.label)) {
+        var plus = document.createElement("button");
+        plus.type = "button";
+        plus.className = "cell-plus";
+        plus.title = "添加特典章节（" + state.label + ".5）";
+        plus.textContent = "+";
+        plus.addEventListener("click", function () {
+          newChapterStates.splice(index + 1, 0, {
+            kiss: "unknown",
+            nudity: "unknown",
+            label: state.label + ".5"
+          });
+          renderNewChapterCells();
+        });
+        container.appendChild(plus);
+      }
     });
   }
 
@@ -218,7 +229,7 @@
       var kiss = halfState(chapter, "kiss");
       var nudity = halfState(chapter, "nudity");
       modifyOriginal.push({ kiss: kiss, nudity: nudity });
-      modifyCurrent.push({ kiss: kiss, nudity: nudity });
+      modifyCurrent.push({ kiss: kiss, nudity: nudity, label: String(chapter.order) });
     });
 
     renderModifyCells();
@@ -231,6 +242,15 @@
     return (chapter[key] || []).length ? "has" : "none";
   }
 
+  function nextNormalChapterLabel() {
+    var max = 0;
+    modifyCurrent.forEach(function (state) {
+      var n = parseInt(state.label, 10);
+      if (isNormalChapterLabel(state.label) && n > max) max = n;
+    });
+    return String(max + 1);
+  }
+
   function renderModifyCells() {
     var container = A.qs("#modifyChapterCells");
     if (!container) return;
@@ -239,8 +259,40 @@
       container.appendChild(buildEditCell(index, state.kiss, state.nudity, function (half) {
         cycleModifyState(state, half);
         renderModifyCells();
-      }));
+      }, state.label || String(index + 1)));
+
+      var next = modifyCurrent[index + 1];
+      if (next && isNormalChapterLabel(state.label) && isNormalChapterLabel(next.label)) {
+        var plus = document.createElement("button");
+        plus.type = "button";
+        plus.className = "cell-plus";
+        plus.title = "添加特典章节（" + state.label + ".5）";
+        plus.textContent = "+";
+        plus.addEventListener("click", function () {
+          modifyCurrent.splice(index + 1, 0, {
+            kiss: "none",
+            nudity: "none",
+            label: state.label + ".5"
+          });
+          modifyOriginal.splice(index + 1, 0, { kiss: "none", nudity: "none" });
+          renderModifyCells();
+        });
+        container.appendChild(plus);
+      }
     });
+
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "cell-add";
+    add.title = "添加下一章节";
+    add.textContent = "+";
+    add.addEventListener("click", function () {
+      var label = nextNormalChapterLabel();
+      modifyCurrent.push({ kiss: "none", nudity: "none", label: label });
+      modifyOriginal.push({ kiss: "none", nudity: "none" });
+      renderModifyCells();
+    });
+    container.appendChild(add);
   }
 
   function cycleState(state, half) {
@@ -254,186 +306,53 @@
     state[half] = state[half] === "has" ? "none" : "has";
   }
 
-  function buildEditCell(chapterIndex, kissState, nudityState, onCycle) {
+  function buildEditCell(chapterIndex, kissState, nudityState, onCycle, labelText) {
     var cell = A.makeEl("div", "edit-cell");
+    var label = labelText != null && labelText !== "" ? String(labelText) : String(chapterIndex + 1);
     cell.appendChild(A.makeEl("span", "cell-half kiss" + stateClass(kissState)));
     cell.appendChild(A.makeEl("span", "cell-half nudity" + stateClass(nudityState)));
     cell.appendChild(A.makeEl("span", "cell-slash"));
-    cell.appendChild(A.makeEl("span", "cell-num", String(chapterIndex + 1)));
+    cell.appendChild(A.makeEl("span", "cell-num", label));
     if (kissState === "unknown") cell.appendChild(A.makeEl("span", "cell-unknown kiss", "?"));
     if (nudityState === "unknown") cell.appendChild(A.makeEl("span", "cell-unknown nudity", "?"));
 
     var hitKiss = document.createElement("button");
     hitKiss.type = "button";
     hitKiss.className = "cell-half-hit kiss";
-    hitKiss.setAttribute("aria-label", "第" + (chapterIndex + 1) + "章 亲吻：当前" + stateLabel(kissState) + "，点击切换");
+    hitKiss.setAttribute("aria-label", "第" + label + "章 亲吻：当前" + stateLabel(kissState) + "，点击切换");
     hitKiss.addEventListener("click", function () { onCycle("kiss"); });
     cell.appendChild(hitKiss);
 
     var hitNudity = document.createElement("button");
     hitNudity.type = "button";
     hitNudity.className = "cell-half-hit nudity";
-    hitNudity.setAttribute("aria-label", "第" + (chapterIndex + 1) + "章 露点：当前" + stateLabel(nudityState) + "，点击切换");
+    hitNudity.setAttribute("aria-label", "第" + label + "章 露点：当前" + stateLabel(nudityState) + "，点击切换");
     hitNudity.addEventListener("click", function () { onCycle("nudity"); });
     cell.appendChild(hitNudity);
 
     return cell;
   }
 
-  /* ---------- 封面 ---------- */
-
-  function bindCoverInput() {
-    var input = A.qs("#fbkCoverInput");
-    if (!input) return;
-    input.addEventListener("change", function () {
-      var file = input.files && input.files[0];
-      var error = A.qs("#coverError");
-      if (error) error.textContent = "";
-      if (!file) return;
-      if (file.type.indexOf("image/") !== 0) {
-        if (error) error.textContent = "封面只能是图片文件。";
-        input.value = "";
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        if (error) error.textContent = "封面不能超过 10MB。";
-        input.value = "";
-        return;
-      }
-      coverFile = file;
-      renderCoverPreview();
-      input.value = "";
-    });
-  }
-
-  function renderCoverPreview() {
-    var box = A.qs("#coverPreview");
-    if (!box) return;
-    box.textContent = "";
-    if (!coverFile) { box.style.display = "none"; return; }
-    box.style.display = "";
-
-    var img = document.createElement("img");
-    img.alt = "封面预览";
-    img.src = URL.createObjectURL(coverFile);
-    var name = A.makeEl("span", "cover-name", coverFile.name);
-    var remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "cover-remove";
-    remove.textContent = "×";
-    remove.setAttribute("aria-label", "移除封面");
-    remove.addEventListener("click", function () {
-      coverFile = null;
-      renderCoverPreview();
-    });
-    box.appendChild(img);
-    box.appendChild(name);
-    box.appendChild(remove);
-  }
-
-  /* ---------- 佐证图片（每张必须注明章节） ---------- */
-
-  function bindImages() {
-    var input = A.qs("#fbkFiles");
-    if (!input) return;
-    input.addEventListener("change", function () {
-      addFiles(input.files);
-      input.value = "";
-      renderPreviews();
-    });
-  }
-
-  function addFiles(fileList) {
-    var max = Number(FB.maxImages) || 30;
-    var maxBytes = (Number(FB.maxImageSizeMB) || 10) * 1024 * 1024;
-    var files = Array.prototype.slice.call(fileList || []);
-    var error = A.qs("#fileError");
-    if (error) error.textContent = "";
-
-    files.forEach(function (file) {
-      if (pendingFiles.length >= max) {
-        if (error) error.textContent = "最多上传 " + max + " 张图片。";
-        return;
-      }
-      if (file.type.indexOf("image/") !== 0) return;
-      if (file.size > maxBytes) {
-        if (error) error.textContent = file.name + " 超过 " + (Number(FB.maxImageSizeMB) || 10) + "MB，已跳过。";
-        return;
-      }
-      var dup = pendingFiles.some(function (item) {
-        return item.file.name === file.name && item.file.size === file.size && item.file.lastModified === file.lastModified;
-      });
-      if (!dup) pendingFiles.push({ file: file, chapterNote: "" });
-    });
-  }
-
-  function renderPreviews() {
-    var grid = A.qs("#previewGrid");
-    if (!grid) return;
-    grid.textContent = "";
-
-    pendingFiles.forEach(function (item, index) {
-      var row = A.makeEl("div", "preview-item");
-
-      var img = document.createElement("img");
-      img.alt = item.file.name;
-      img.src = URL.createObjectURL(item.file);
-
-      var note = document.createElement("input");
-      note.type = "text";
-      note.className = "preview-note";
-      note.placeholder = "对应章节（必填），例如：第3话";
-      note.value = item.chapterNote;
-      note.addEventListener("input", function () {
-        item.chapterNote = note.value.trim();
-      });
-
-      var remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "preview-remove";
-      remove.textContent = "×";
-      remove.setAttribute("aria-label", "移除 " + item.file.name);
-      remove.addEventListener("click", function () {
-        pendingFiles.splice(index, 1);
-        renderPreviews();
-      });
-
-      row.appendChild(img);
-      row.appendChild(note);
-      row.appendChild(remove);
-      grid.appendChild(row);
-    });
-  }
-
   /* ---------- 校验 ---------- */
-
-  function validateChapterNotes() {
-    var missing = pendingFiles.some(function (item) { return !item.chapterNote; });
-    if (missing) {
-      showStatus("err", "每张佐证图片都必须备注对应的章节。");
-      return false;
-    }
-    return true;
-  }
 
   function validateNew() {
     var title = A.qs("#fbkNewTitle").value.trim();
+    var jpTitle = A.qs("#fbkNewJpTitle").value.trim();
     var chapterCount = parseInt(A.qs("#fbkNewChapters").value, 10);
     if (!title) { showStatus("err", "请填写新增漫画的标题。"); return false; }
+    if (!jpTitle) { showStatus("err", "请填写新增漫画的日文原名。"); return false; }
     if (!chapterCount || chapterCount < 1) {
       showStatus("err", "请填写章节数量（几章）。");
       return false;
     }
-    return true;
-  }
-
-  function changedNoneOrUnknownToHas() {
-    return modifyOriginal.some(function (orig, index) {
-      var cur = modifyCurrent[index];
-      if (!cur) return false;
-      return ((orig.kiss === "none" || orig.kiss === "unknown") && cur.kiss === "has") ||
-             ((orig.nudity === "none" || orig.nudity === "unknown") && cur.nudity === "has");
+    var hasKnown = newChapterStates.some(function (state) {
+      return state.kiss !== "unknown" || state.nudity !== "unknown";
     });
+    if (!hasKnown) {
+      showStatus("err", "章节情况不能全部为未知：请至少把一章的亲吻或露点标为“有”或“无”。");
+      return false;
+    }
+    return true;
   }
 
   function validateModify() {
@@ -441,15 +360,10 @@
     var reason = A.qs("#fbkModifyReason").value.trim();
     if (!select || !select.value || !selectedManga) { showStatus("err", "请搜索并选择要修改的漫画。"); return false; }
     if (!reason) { showStatus("err", "修改已有漫画必须注明原因。"); return false; }
-    if (changedNoneOrUnknownToHas() && pendingFiles.length === 0) {
-      showStatus("err", "你把某个章节从“无/未知”改为“有”，必须上传至少一张佐证图片。");
-      return false;
-    }
     return true;
   }
 
   function validate() {
-    if (!validateChapterNotes()) return false;
     if (mode === "new") return validateNew();
     return validateModify();
   }
@@ -464,23 +378,7 @@
   }
 
   function issueBodyForUrl() {
-    var body = buildMessage()
-      .replace(/\r\n/g, "\n")
-      .split("\n")
-      .filter(function (line) { return line.trim() !== "佐证图片仅用于审核，请勿公开展示。"; })
-      .join("\n");
-
-    body += "\n\n---\n投稿图片请在此处拖入编辑器中：";
-    if (mode === "new" && coverFile) {
-      body += "\n- 封面图：" + coverFile.name;
-    }
-    pendingFiles.forEach(function (item) {
-      body += "\n- " + item.file.name + " → " + item.chapterNote;
-    });
-    if (!pendingFiles.length && !(mode === "new" && coverFile)) {
-      body += "\n- （本次未准备图片）";
-    }
-
+    var body = buildMessage().replace(/\r\n/g, "\n").trim();
     if (body.length > 3600) {
       body = body.slice(0, 3600) + "\n\n（内容过长已截断，其余章节状态请在 GitHub Issue 中补充。）";
     }
@@ -556,33 +454,41 @@
     if (mode === "new") {
       lines.push("数据类型：新增漫画");
       lines.push("标题：" + A.qs("#fbkNewTitle").value.trim());
+      lines.push("日文原名：" + A.qs("#fbkNewJpTitle").value.trim());
+      lines.push("别名：" + (A.qs("#fbkNewAltTitles").value.trim() || "未填"));
       lines.push("连载状况：" + (A.qs("#fbkNewStatus").value || "未填"));
       lines.push("作者：" + (A.qs("#fbkNewAuthor").value.trim() || "未填"));
-      lines.push("章节数：" + newChapterStates.length);
-      if (coverFile) lines.push("封面图：已上传（" + coverFile.name + "）");
-      else lines.push("封面图：未上传");
+      var specialCount = newChapterStates.length - newBaseCount;
+      lines.push("章节数：" + newBaseCount + (specialCount > 0 ? "（含特典 " + specialCount + " 个：见章节状况中的 .5 章节）" : ""));
     } else if (selectedManga) {
       lines.push("数据类型：修改已有漫画");
       lines.push("漫画：" + selectedManga.title + "（" + selectedManga.slug + "）");
       lines.push("修改原因：" + A.qs("#fbkModifyReason").value.trim());
     }
 
-    lines.push("", "章节状况（" + stateTxt + "）");
-    var states = mode === "new" ? newChapterStates : modifyCurrent;
-    states.forEach(function (state, index) {
-      lines.push("第" + (index + 1) + "章：亲吻=" + stateLabel(state.kiss) + "，露点=" + stateLabel(state.nudity));
-    });
-
-    if (pendingFiles.length) {
-      lines.push("", "佐证图片（每张对应章节）");
-      pendingFiles.forEach(function (item) {
-        lines.push("- " + item.file.name + " → " + item.chapterNote);
+    if (mode === "new") {
+      lines.push("", "章节状况（" + stateTxt + "）");
+      newChapterStates.forEach(function (state) {
+        lines.push("第" + state.label + "章：亲吻=" + stateLabel(state.kiss) + "，露点=" + stateLabel(state.nudity));
       });
     }
 
-    lines.push("", "联系方式：" + (A.qs("#fbkContact").value.trim() || "未填写"));
-    lines.push("提交时间：" + new Date().toISOString());
-    lines.push("", "佐证图片仅用于审核，请勿公开展示。");
+    if (mode === "modify" && selectedManga) {
+      lines.push("", "变更对照（原 → 新）");
+      var changed = false;
+      modifyOriginal.forEach(function (orig, index) {
+        var cur = modifyCurrent[index];
+        if (!cur) return;
+        if (orig.kiss !== cur.kiss || orig.nudity !== cur.nudity) {
+          changed = true;
+          lines.push("- 第" + cur.label + "章：亲吻 " + stateLabel(orig.kiss) + " → " + stateLabel(cur.kiss) +
+            "，露点 " + stateLabel(orig.nudity) + " → " + stateLabel(cur.nudity));
+        }
+      });
+      if (!changed) lines.push("- 章节色块未修改");
+    }
+
+    lines.push("", "提交时间：" + new Date().toISOString());
     return lines.join("\n");
   }
 
@@ -609,31 +515,18 @@
 
     if (mode === "new") {
       fd.append("manga_title", A.qs("#fbkNewTitle").value.trim());
+      fd.append("manga_jp_title", A.qs("#fbkNewJpTitle").value.trim());
+      fd.append("manga_alt_titles", A.qs("#fbkNewAltTitles").value.trim());
       fd.append("manga_status", A.qs("#fbkNewStatus").value);
       fd.append("manga_author", A.qs("#fbkNewAuthor").value.trim());
-      fd.append("chapter_count", String(newChapterStates.length));
-      if (coverFile) fd.append("cover", coverFile, coverFile.name);
+      fd.append("chapter_count", String(newBaseCount));
     } else if (selectedManga) {
       fd.append("manga_title", selectedManga.title);
       fd.append("manga_slug", selectedManga.slug);
       fd.append("modify_reason", A.qs("#fbkModifyReason").value.trim());
     }
 
-    pendingFiles.forEach(function (item) {
-      fd.append("attachment", item.file, item.file.name);
-    });
-    fd.append("image_notes", pendingFiles.map(function (item) {
-      return item.file.name + " → " + item.chapterNote;
-    }).join("\n"));
-
-    var contact = A.qs("#fbkContact").value.trim();
-    fd.append("contact", contact);
-    if (contact.indexOf("@") !== -1) {
-      fd.append("from_name", contact.split("@")[0]);
-      fd.append("email", contact);
-    } else {
-      fd.append("from_name", contact || "匿名路人");
-    }
+    fd.append("from_name", "匿名投稿");
 
     var endpoint;
     if (FB.backend === "formspree") {
@@ -657,10 +550,6 @@
       if (ok) {
         showStatus("ok", "提交成功！审核通过后，新增/修改的条目会出现在对应位置。");
         A.qs("#feedbackForm").reset();
-        pendingFiles = [];
-        coverFile = null;
-        renderPreviews();
-        renderCoverPreview();
         renderNewChapterCells();
         selectManga(A.qs("#fbkModifyManga").value || "");
         setMode("new");

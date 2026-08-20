@@ -52,7 +52,7 @@
   }
 
   function searchText(manga) {
-    var parts = [manga.title]
+    var parts = [manga.title, manga.jpTitle || ""]
       .concat(manga.altTitles || [])
       .concat([manga.author || "", manga.status || ""]);
     (manga.chapters || []).forEach(function (ch) {
@@ -71,6 +71,7 @@
 
     return DATA.filter(function (manga) {
       if (f.ongoing && manga.status !== "连载中") return false;
+      if (f.finished && manga.status !== "已完结") return false;
 
       var counts = sceneCounts(manga);
       if (f.hasKiss && counts.kiss === 0) return false;
@@ -134,7 +135,21 @@
     titleLink.href = "manga.html?id=" + encodeURIComponent(manga.slug);
     title.appendChild(titleLink);
     body.appendChild(title);
-    body.appendChild(makeEl("p", "manga-author", manga.author || ""));
+    if (manga.author) {
+      var authorBtn = makeEl("button", "manga-author");
+      authorBtn.type = "button";
+      authorBtn.textContent = manga.author;
+      authorBtn.title = "按作者搜索：" + manga.author;
+      authorBtn.addEventListener("click", function () {
+        var input = qs("#searchInput");
+        if (!input) return;
+        input.value = manga.author;
+        if (typeof input.dispatchEvent === "function") {
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
+      body.appendChild(authorBtn);
+    }
 
     var meta = makeEl("div", "manga-meta");
     meta.appendChild(makeEl("span", "count-badge kiss", "亲吻 " + counts.kiss));

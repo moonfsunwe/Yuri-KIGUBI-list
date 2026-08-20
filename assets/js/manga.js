@@ -223,8 +223,9 @@
     detailed.textContent = "详细模式";
     detailedWrap.appendChild(detailed);
 
-    var warn = A.makeEl("span", "mode-warn", "⚠️");
+    var warn = A.makeEl("span", "mode-warn");
     warn.setAttribute("aria-hidden", "true");
+    warn.appendChild(A.makeEl("span", "mode-warn-mark", "!"));
     detailedWrap.appendChild(warn);
 
     var tip = A.makeEl("span", "mode-tip", "可能包含剧透：详细模式会显示亲吻 / 露点场景的具体文字描述。");
@@ -242,9 +243,15 @@
     empty.appendChild(A.makeEl("span", "big", "🕳️"));
     empty.appendChild(A.makeEl("h1", null, "没有找到这部漫画"));
     empty.appendChild(A.makeEl("p", null, "链接可能已失效，或该条目尚未收录。"));
+
+    var submitLink = A.makeEl("a", "btn-primary", "提交这部漫画的数据");
+    submitLink.href = "feedback.html";
+    empty.appendChild(submitLink);
+
     var back = A.makeEl("a", "btn-ghost", "返回漫画列表");
     back.href = "index.html";
     empty.appendChild(back);
+
     root.appendChild(empty);
   }
 

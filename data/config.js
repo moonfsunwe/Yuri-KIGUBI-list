@@ -19,7 +19,7 @@
        *    需要先把仓库地址填到 githubIssueRepo，并在仓库中建好
        *    submission / pending / approved 三个标签。
        *  - "web3forms"：访问 https://web3forms.com 用邮箱领取 Access Key，
-       *    免费额度支持附件（佐证图片会发送到你的邮箱，不存储在站内）。
+       *    适合邮箱接收投稿。
        *  - "formspree"：访问 https://formspree.io 创建表单，
        *    把返回的 https://formspree.io/f/xxxx 填入 formspreeEndpoint。
        */
@@ -28,7 +28,7 @@
 
       // GitHub Issue 提交（backend = "githubIssue" 时使用）
       // 格式：拥有者/仓库名，例如 "kigubi/list"
-      githubIssueRepo: "YOUR_OWNER/YOUR_REPO",
+      githubIssueRepo: "moonfsunwe/Yuri-KIGUBI-list",
       // 新 Issue 自动预选标签（这些标签需要在你的 GitHub 仓库中已存在）
       githubIssueLabels: ["submission", "pending"],
 
@@ -36,20 +36,13 @@
       web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY",
 
       // Formspree（backend = "formspree" 时使用）
-      formspreeEndpoint: "https://formspree.io/f/YOUR_FORM_ID",
-
-      // 佐证图片限制
-      //  - 邮件模式下：图片随表单发送到你的邮箱
-      //  - GitHub Issue 模式下：图片仅在本地整理与预览，提交时会生成图片清单，
-      //    访客需要按清单在 GitHub Issue 编辑器里手动拖入对应图片
-      maxImages: 30,
-      maxImageSizeMB: 10
+      formspreeEndpoint: "https://formspree.io/f/YOUR_FORM_ID"
     },
 
     // 你的仓库地址，用于页脚“审核流程”链接（可选）
     repoUrl: "",
 
     footerNote:
-      "本站为爱好者整理的检索索引：只收录信息，不提供资源，不公开展示佐证图片。数据以仓库文件为准，由维护者审核后上架。"
+      "本站为爱好者整理的检索索引：只收录信息，不提供资源。数据以仓库文件为准，由维护者审核后上架。"
   };
 })();
