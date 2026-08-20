@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提交数据 | KIGUBI LIST</title>
+  <meta name="description" content="新增漫画或修改已有漫画的亲吻/露点场景信息，上传佐证图片。图片仅用于维护者审核，不会公开展示。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="brand" href="index.html" aria-label="KIGUBI LIST 首页">
+        <span class="brand-mark" aria-hidden="true">💋</span>
+        <span class="brand-text">
+          <span class="brand-name">KIGUBI LIST</span>
+          <span class="brand-sub">漫画场景信息索引</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a data-nav href="index.html">数据检索</a>
+        <a data-nav href="feedback.html">提交数据</a>
+        <a data-nav href="admin.html">审核流程</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap page">
+    <div class="form-shell">
+      <p class="section-kicker">Submit Data</p>
+      <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">提交场景数据</h1>
+      <p class="form-intro">
+        新增漫画或修改已有漫画的亲吻/露点记录。佐证图片<strong>仅用于维护者审核</strong>，不会在网站上展示。
+      </p>
+
+      <div class="setup-notice" id="setupNotice">
+        <strong>数据提交通道尚未配置。</strong>站点维护者需要在
+        <code>data/config.js</code> 中把 <code>backend</code> 设为 <code>githubIssue</code> 并填入
+        <code>githubIssueRepo</code>（或改用 Web3Forms / Formspree），
+        提交功能才会启用。具体步骤见 <a href="admin.html">审核流程</a>。
+      </div>
+
+      <form class="form-card" id="feedbackForm" novalidate>
+        <div class="fb-tabs" role="tablist" aria-label="数据类型">
+          <button type="button" class="fb-tab active" data-tab="new" id="tabNew">新增漫画</button>
+          <button type="button" class="fb-tab" data-tab="modify" id="tabModify">修改已有漫画</button>
+        </div>
+
+        <!-- 新增漫画 -->
+        <section class="fb-panel active" id="panelNew" aria-label="新增漫画">
+          <div class="field">
+            <label for="fbkCoverInput">封面图<span class="field-hint">选填</span></label>
+            <div class="file-drop">
+              <label class="file-btn" for="fbkCoverInput">上传封面图</label>
+              <input class="input" id="fbkCoverInput" type="file" accept="image/*" hidden>
+              <span class="file-limits">封面仅用于帮助维护者识别漫画；单张不超过 10MB。</span>
+            </div>
+            <div class="cover-preview" id="coverPreview" style="display:none"></div>
+            <p class="file-error" id="coverError"></p>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="fbkNewTitle">标题<span class="field-hint">必填</span></label>
+              <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题">
+            </div>
+            <div class="field">
+              <label for="fbkNewStatus">连载状况<span class="field-hint">选填</span></label>
+              <select class="select" id="fbkNewStatus" name="newStatus">
+                <option value="">不填</option>
+                <option value="连载中">连载中</option>
+                <option value="已完结">已完结</option>
+                <option value="休刊">休刊</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="fbkNewAuthor">作者<span class="field-hint">选填</span></label>
+              <input class="input" id="fbkNewAuthor" name="newAuthor" placeholder="作者名">
+            </div>
+            <div class="field">
+              <label for="fbkNewChapters">几章<span class="field-hint">必填</span></label>
+              <input class="input" id="fbkNewChapters" name="newChapters" type="number" min="1" max="300" inputmode="numeric" placeholder="例如：3">
+            </div>
+          </div>
+
+          <p class="chapter-cells-title">章节情况</p>
+          <p class="chapter-cells-hint">默认全部未知（蓝色问号）。点击色块左上半（亲吻）或右下半（露点）切换：未知 → 有 → 无。</p>
+          <div class="chapter-cells" id="newChapterCells"></div>
+        </section>
+
+        <!-- 修改已有漫画 -->
+        <section class="fb-panel" id="panelModify" aria-label="修改已有漫画">
+          <div class="field">
+            <label for="fbkModifyManga">选择漫画<span class="field-hint">必填 · 可输入搜索</span></label>
+            <input class="input" id="fbkModifyManga" name="modifyManga" list="modifyMangaList" placeholder="输入漫画标题搜索…" autocomplete="off">
+            <datalist id="modifyMangaList"></datalist>
+          </div>
+
+          <p class="chapter-cells-title">章节情况</p>
+          <p class="chapter-cells-hint">粉色/紫色 = 有记录；灰色 = 无记录；蓝色问号 = 未知（仅显示已有的未知，不能修改成未知）。点击半边仅在“有 / 无”之间切换。</p>
+          <div class="chapter-cells" id="modifyChapterCells"></div>
+
+          <div class="field">
+            <label for="fbkModifyReason">修改原因<span class="field-hint">必填</span></label>
+            <textarea class="textarea" id="fbkModifyReason" name="modifyReason" placeholder="请说明为什么修改，例如：第2话露点此前漏记，补充为有；或第1话亲吻记录有误。"></textarea>
+          </div>
+        </section>
+
+        <div class="field">
+          <span class="field-label">佐证图片<span class="field-hint">选填 · 每张必须备注对应章节 · 最多 30 张</span></span>
+          <div class="file-drop">
+            <label class="file-btn" for="fbkFiles">选择图片</label>
+            <input class="input" id="fbkFiles" type="file" accept="image/*" multiple hidden>
+            <span class="file-limits" id="fileLimitsText">支持 jpg / png / webp，单张不超过 10MB。图片不会公开展示。</span>
+          </div>
+          <div class="preview-grid" id="previewGrid"></div>
+          <p class="file-error" id="fileError"></p>
+        </div>
+
+        <div class="field">
+          <label for="fbkContact">联系方式<span class="field-hint">可选 · 用于回复审批结果</span></label>
+          <input class="input" id="fbkContact" name="contact" type="text" placeholder="邮箱 / Telegram / 其它（不公开）">
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="fbkConsent" name="consent">
+          <span>我确认上传的图片仅用于佐证该条目，本人有权提供，且同意维护者仅将其用于审核核对。</span>
+        </label>
+
+        <div class="submit-row">
+          <button class="btn-primary" id="fbkSubmit" type="submit">提交数据</button>
+          <span class="form-status" id="fbkStatus" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div class="modal-backdrop" id="issueModal" hidden>
+        <div class="modal-card" role="dialog" aria-labelledby="issueModalTitle">
+          <h2 id="issueModalTitle" style="margin:0 0 8px; font-family:var(--font-display);">确认投稿内容</h2>
+          <p class="modal-hint">
+            点击下方绿色按钮将打开 GitHub Issue 页面（提交框已预填内容）。<br>
+            <strong>图片不会自动上传</strong>：请在 GitHub Issue 编辑器里，按下方图片清单手动拖入对应图片。
+          </p>
+          <label for="issueBodyPreview" class="field-label">将提交的 Issue 内容</label>
+          <textarea class="textarea" id="issueBodyPreview" readonly style="height:200px; margin-top:6px;"></textarea>
+          <div class="modal-actions">
+            <button type="button" class="btn-ghost" id="issueCopy">复制内容</button>
+            <button type="button" class="btn-ghost" id="issueCancel">返回修改</button>
+            <a class="btn-primary" id="issueOpen" href="#" target="_blank" rel="noopener">前往 GitHub 提交 Issue</a>
+          </div>
+        </div>
+      </div>
+
+      <p class="privacy-note" id="privacyNote">
+        🔒 隐私说明：佐证图片通过第三方表单服务直接发送到维护者邮箱，本站不存储、不公开展示。
+        数据上架前由维护者人工核对，通过后仅把文字信息写入 <code>data/manga-data.js</code>。
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="grow">
+        <strong>KIGUBI LIST</strong>
+        <p>按漫画、按章节收录亲吻与露点场景信息。所有条目仅为文字索引：无资源链接、无场景图片（漫画封面除外）。</p>
+        <p>© <span data-year>2025</span> · 由维护者审核整理</p>
+      </div>
+      <div>
+        <strong>导航</strong>
+        <p><a href="index.html">数据检索</a><br>
+           <a href="feedback.html">提交数据</a><br>
+           <a href="admin.html">审核流程</a></p>
+      </div>
+      <div>
+        <strong>说明</strong>
+        <p>佐证图片仅用于维护者审核，<br>不会在网站展示或保存。</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data/config.js"></script>
+  <script src="data/manga-data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/feedback.js"></script>
+</body>
+</html>
