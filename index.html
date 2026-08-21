@@ -3,13 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>漫画亲吻·露点场景信息索引 | KIGUBI LIST</title>
-  <meta name="description" content="按漫画与章节收录亲吻场景和露点场景的信息索引。只提供角色与文字描述，不提供资源与具体场景图片。">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <title>漫画亲吻·ちくび信息索引 | KIGUBI LIST</title>
+  <meta name="description" content="按漫画与章节收录亲吻场景和ちくび的信息索引。只提供角色与文字描述，不提供资源与具体场景图片。">
+  <link rel="icon" href="assets/favicon.svg">  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -17,7 +13,7 @@
   <header class="site-header">
     <div class="nav-inner">
       <a class="brand" href="index.html" aria-label="KIGUBI LIST 首页">
-        <span class="brand-mark" aria-hidden="true">💋</span>
+        <span class="brand-mark" aria-hidden="true"><img src="assets/favicon.svg" alt="" class="brand-mark-icon"></span>
         <span class="brand-text">
           <span class="brand-name">KIGUBI LIST</span>
           <span class="brand-sub">漫画场景信息索引</span>
@@ -32,37 +28,37 @@
 
   <main id="main">
     <div class="wrap hero">
-      <p class="section-kicker">Scene Index for Manga</p>
-      <h1>亲吻 &amp; 露点场景，<br><span class="tone">按章节检索。</span></h1>
+      <p class="section-kicker">Scene Index for Yuri Manga</p>
+      <h1>キス &amp; ちくび<br><span class="tone">Yuri KIGUBI list</span></h1>
       <p class="hero-desc">
-        只收录信息：角色、文字描述。不提供漫画资源、下载链接或具体场景图片。
-        点击任意漫画进入章节页，分别查看亲吻记录与露点记录。
+        仅收录百合漫画信息：角色、文字描述。不提供漫画资源、下载链接或具体场景图片。
       </p>
 
       <div class="hero-notice" role="note">
-        <span aria-hidden="true">⚠️</span>
-        <span><strong>内容提示：</strong>本站仅提供检索信息；部分条目涉及成人内容，不展示对应图片。浏览即视为你已成年且自愿访问。</span>
+        <span class="hero-warn-icon" aria-hidden="true">!</span>
+        <span><strong>内容提示：</strong>本站提供的信息可能造成一定程度的剧透</span>
       </div>
 
       <div class="search-shell">
-        <span class="icon" aria-hidden="true">🔍</span>
-        <input id="searchInput" type="search" placeholder="搜索漫画、作者、角色、场景描述…" autocomplete="off">
+        <span class="icon search-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line><path d="M8 11h6M11 8v6" stroke="#d94f70" stroke-width="1.8"></path></svg></span>
+        <input id="searchInput" type="search" placeholder="搜索漫画、作者…" autocomplete="off">
         <span class="search-hint">实时搜索</span>
       </div>
 
-      <div class="hero-stats" aria-label="数据统计">
-        <span class="stat-pill">收录漫画 <strong id="statManga">0</strong></span>
-        <span class="stat-pill">亲吻记录 <strong id="statKiss">0</strong></span>
-        <span class="stat-pill">露点记录 <strong id="statNudity">0</strong></span>
       </div>
-    </div>
 
     <div class="wrap page">
       <div class="library">
         <aside class="filters" aria-label="条件筛选">
           <h2>条件筛选</h2>
-          <p class="hint">可多选，叠加生效。</p>
-          <div class="filter-cloud" id="filterCloud"></div>
+          <div class="filter-box">
+            <div class="filter-box-title">亲吻</div>
+            <div class="filter-cloud" id="kissFilterCloud"></div>
+          </div>
+          <div class="filter-box">
+            <div class="filter-box-title">ちくび</div>
+            <div class="filter-cloud" id="nudityFilterCloud"></div>
+          </div>
           <button class="clear-filters" id="clearFilters" type="button" style="display:none">清除筛选</button>
         </aside>
 
@@ -72,9 +68,8 @@
             <div class="select-wrap">
               <label for="sortSelect">排序</label>
               <select id="sortSelect">
-                <option value="recent" selected>最近更新</option>
-                <option value="title">标题</option>
-                <option value="chapters">章节最多</option>
+                <option value="title" selected>标题</option>
+                <option value="chapters">章节数</option>
               </select>
             </div>
           </div>
@@ -88,7 +83,7 @@
     <div class="footer-inner">
       <div class="grow">
         <strong>KIGUBI LIST</strong>
-        <p>按漫画、按章节收录亲吻与露点场景信息。所有条目仅为文字索引：无资源链接、无场景图片（漫画封面除外）。</p>
+        <p>按漫画章节收录信息。所有条目仅为文字索引，无资源链接、无场景图片。</p>
         <p>© <span data-year>2025</span> · 由维护者审核整理</p>
       </div>
       <div>
@@ -98,6 +93,38 @@
       </div>
     </div>
   </footer>
+
+  <div class="spoiler-modal" id="spoilerModal" hidden>
+    <div class="spoiler-card" role="dialog" aria-labelledby="spoilerTitle">
+      <h1 id="spoilerTitle">剧透预警</h1>
+      <p class="spoiler-sub">本站仅收录百合漫画信息，不提供任何资源，使用将会导致一定程度的剧透，请根据您对剧透的不同容忍度使用本站。</p>
+      <div class="spoiler-grid">
+        <div class="spoiler-mini" style="background:#fde7ee; color:#d94f70;">
+          <span class="spoiler-mini-title" style="font-size:18px;">剧透预警</span>
+          <span class="spoiler-mini-desc" style="font-size:14px;">示例说明文字（后续替换）</span>
+        </div>
+        <div class="spoiler-mini" style="background:#fbefdb; color:#d99a3c;">
+          <span class="spoiler-mini-title" style="font-size:19px;">百合漫画</span>
+          <span class="spoiler-mini-desc" style="font-size:13px;">示例说明文字一</span>
+          <span class="spoiler-mini-desc" style="font-size:15px;">示例说明文字二</span>
+        </div>
+        <div class="spoiler-mini" style="background:#eee7fb; color:#7b5bc2;">
+          <span class="spoiler-mini-title" style="font-size:17px;">示例标题三（稍小字号）</span>
+          <span class="spoiler-mini-desc" style="font-size:16px;">示例说明文字</span>
+          <span class="spoiler-mini-desc" style="font-size:14px;">补充示例说明</span>
+        </div>
+        <div class="spoiler-mini" style="background:#dff2eb; color:#3d9a7c;">
+          <span class="spoiler-mini-title" style="font-size:20px;">示例标题四</span>
+          <span class="spoiler-mini-desc" style="font-size:15px;">示例说明文字（后续替换）</span>
+        </div>
+      </div>
+      <label class="check-row spoiler-check">
+        <input type="checkbox" id="spoilerNever" disabled>
+        <span id="spoilerNeverLabel">我已了解本网站将会造成一定程度的百合漫画剧透且不提供任何资源，下次不再提示（10 秒后可勾选）</span>
+      </label>
+      <button class="btn-primary" id="spoilerConfirm" type="button">确认</button>
+    </div>
+  </div>
 
   <script src="data/config.js"></script>
   <script src="data/manga-data.js"></script>

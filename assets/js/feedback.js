@@ -12,6 +12,9 @@
   var modifyCurrent = [];       // [{ kiss, nudity }]
   var modifyOriginal = [];      // [{ kiss, nudity }]
   var selectedManga = null;
+  var newTagAssignments = [];      // [{ label, tag }]
+  var modifyTagAssignments = [];   // [{ label, tag }]
+  var allTagNames = [];
 
   function configured() {
     if (!FB.enabled) return false;
@@ -54,16 +57,20 @@
     bindTabs();
     populateModifySelect();
     bindNewChapterCount();
+    allTagNames = A.listAllTagNames() || [];
+    fillTagDatalists();
+    bindTagAssignment("new");
+    bindTagAssignment("modify");
     renderNewChapterCells();
 
     var params = new URLSearchParams(window.location.search);
-    var modifySlug = params.get("modify");
-    if (modifySlug) {
-      var manga = A.getManga(modifySlug);
+    var modifyTitle = params.get("modify");
+    if (modifyTitle) {
+      var manga = A.getManga(modifyTitle);
       if (manga) {
         var inputBox = A.qs("#fbkModifyManga");
         if (inputBox) inputBox.value = manga.title;
-        selectManga(manga.slug);
+        selectManga(manga.title);
         setMode("modify");
       }
     }
@@ -161,6 +168,8 @@
         container.appendChild(plus);
       }
     });
+
+    refreshTagAssignUI("new");
   }
 
   function populateModifySelect() {
@@ -184,7 +193,7 @@
       var value = A.normalize(raw);
       var exact = null;
       A.DATA.some(function (manga) {
-        if (A.normalize(manga.title) === value || A.normalize(manga.slug) === value) {
+        if (A.normalize(manga.title) === value) {
           exact = manga;
           return true;
         }
@@ -193,19 +202,17 @@
 
       A.DATA
         .filter(function (manga) {
-          return A.normalize(manga.title).indexOf(value) !== -1 ||
-                 A.normalize(manga.slug).indexOf(value) !== -1;
+          return A.normalize(manga.title).indexOf(value) !== -1;
         })
         .slice(0, 10)
         .forEach(function (manga) {
           var opt = document.createElement("option");
           opt.value = manga.title;
-          opt.dataset.slug = manga.slug;
           datalist.appendChild(opt);
         });
 
       if (exact) {
-        selectManga(exact.slug);
+        selectManga(exact.title);
       } else {
         selectedManga = null;
         modifyOriginal = [];
@@ -216,8 +223,8 @@
     });
   }
 
-  function selectManga(slug) {
-    selectedManga = A.getManga(slug);
+  function selectManga(title) {
+    selectedManga = A.getManga(title);
     modifyOriginal = [];
     modifyCurrent = [];
     var container = A.qs("#modifyChapterCells");
@@ -293,6 +300,8 @@
       renderModifyCells();
     });
     container.appendChild(add);
+
+    refreshTagAssignUI("modify");
   }
 
   function cycleState(state, half) {
@@ -326,21 +335,139 @@
     var hitNudity = document.createElement("button");
     hitNudity.type = "button";
     hitNudity.className = "cell-half-hit nudity";
-    hitNudity.setAttribute("aria-label", "第" + label + "章 露点：当前" + stateLabel(nudityState) + "，点击切换");
+    hitNudity.setAttribute("aria-label", "第" + label + "章 ちくび：当前" + stateLabel(nudityState) + "，点击切换");
     hitNudity.addEventListener("click", function () { onCycle("nudity"); });
     cell.appendChild(hitNudity);
 
     return cell;
   }
 
+  /* ---------- 章节 tag 分配 ---------- */
+
+  function chapterStatesFor(mode) {
+    return mode === "new" ? newChapterStates : modifyCurrent;
+  }
+
+  function tagAssignmentsFor(mode) {
+    return mode === "new" ? newTagAssignments : modifyTagAssignments;
+  }
+
+  function fillTagDatalists() {
+    ["new", "modify"].forEach(function (mode) {
+      var datalist = A.qs("#" + mode + "TagDatalist");
+      if (datalist) {
+        datalist.textContent = "";
+        allTagNames.forEach(function (name) {
+          var opt = document.createElement("option");
+          opt.value = name;
+          datalist.appendChild(opt);
+        });
+      }
+      renderTagChipButtons(mode);
+    });
+  }
+
+  function renderTagChipButtons(mode) {
+    var box = A.qs("#" + mode + "TagChips");
+    if (!box) return;
+    box.textContent = "";
+    allTagNames.forEach(function (name) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "tag-pick-chip";
+      chip.textContent = name;
+      chip.addEventListener("click", function () {
+        var select = A.qs("#" + mode + "TagChapter");
+        if (!select || !select.value) {
+          showStatus("err", "请先选择要添加 tag 的章节。");
+          return;
+        }
+        tagAssignmentsFor(mode).push({ label: select.value, tag: name });
+        renderTagAssignList(mode);
+      });
+      box.appendChild(chip);
+    });
+  }
+
+  function bindTagAssignment(mode) {
+    var button = A.qs("#" + mode + "TagAdd");
+    if (button) {
+      button.addEventListener("click", function () { addTagAssignment(mode); });
+    }
+    var input = A.qs("#" + mode + "TagName");
+    if (input) {
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addTagAssignment(mode);
+        }
+      });
+    }
+  }
+
+  function addTagAssignment(mode) {
+    var select = A.qs("#" + mode + "TagChapter");
+    var input = A.qs("#" + mode + "TagName");
+    if (!select || !input) return;
+
+    var label = select.value;
+    var tag = input.value.trim();
+    if (!label || !tag) return;
+
+    tagAssignmentsFor(mode).push({ label: label, tag: tag });
+    input.value = "";
+    renderTagAssignList(mode);
+  }
+
+  function refreshTagAssignUI(mode) {
+    var select = A.qs("#" + mode + "TagChapter");
+    if (select) {
+      var previous = select.value;
+      select.textContent = "";
+      chapterStatesFor(mode).forEach(function (state) {
+        var opt = document.createElement("option");
+        opt.value = String(state.label);
+        opt.textContent = "第 " + String(state.label) + " 章";
+        select.appendChild(opt);
+      });
+      if (previous) {
+        var exists = Array.prototype.some.call(select.options, function (opt) { return opt.value === previous; });
+        if (exists) select.value = previous;
+      }
+    }
+    renderTagAssignList(mode);
+  }
+
+  function renderTagAssignList(mode) {
+    var listEl = A.qs("#" + mode + "TagAssignList");
+    if (!listEl) return;
+
+    listEl.textContent = "";
+    tagAssignmentsFor(mode).forEach(function (assignment, index) {
+      var li = document.createElement("li");
+      var text = document.createElement("span");
+      text.textContent = "第 " + assignment.label + " 章：" + assignment.tag;
+      li.appendChild(text);
+
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "tag-assign-remove";
+      remove.textContent = "移除";
+      remove.addEventListener("click", function () {
+        tagAssignmentsFor(mode).splice(index, 1);
+        renderTagAssignList(mode);
+      });
+      li.appendChild(remove);
+      listEl.appendChild(li);
+    });
+  }
+
   /* ---------- 校验 ---------- */
 
   function validateNew() {
     var title = A.qs("#fbkNewTitle").value.trim();
-    var jpTitle = A.qs("#fbkNewJpTitle").value.trim();
     var chapterCount = parseInt(A.qs("#fbkNewChapters").value, 10);
     if (!title) { showStatus("err", "请填写新增漫画的标题。"); return false; }
-    if (!jpTitle) { showStatus("err", "请填写新增漫画的日文原名。"); return false; }
     if (!chapterCount || chapterCount < 1) {
       showStatus("err", "请填写章节数量（几章）。");
       return false;
@@ -349,7 +476,7 @@
       return state.kiss !== "unknown" || state.nudity !== "unknown";
     });
     if (!hasKnown) {
-      showStatus("err", "章节情况不能全部为未知：请至少把一章的亲吻或露点标为“有”或“无”。");
+      showStatus("err", "章节情况不能全部为未知：请至少把一章的亲吻或ちくび标为“有”或“无”。");
       return false;
     }
     return true;
@@ -454,7 +581,6 @@
     if (mode === "new") {
       lines.push("数据类型：新增漫画");
       lines.push("标题：" + A.qs("#fbkNewTitle").value.trim());
-      lines.push("日文原名：" + A.qs("#fbkNewJpTitle").value.trim());
       lines.push("别名：" + (A.qs("#fbkNewAltTitles").value.trim() || "未填"));
       lines.push("连载状况：" + (A.qs("#fbkNewStatus").value || "未填"));
       lines.push("作者：" + (A.qs("#fbkNewAuthor").value.trim() || "未填"));
@@ -462,15 +588,21 @@
       lines.push("章节数：" + newBaseCount + (specialCount > 0 ? "（含特典 " + specialCount + " 个：见章节状况中的 .5 章节）" : ""));
     } else if (selectedManga) {
       lines.push("数据类型：修改已有漫画");
-      lines.push("漫画：" + selectedManga.title + "（" + selectedManga.slug + "）");
+      lines.push("漫画：" + selectedManga.title);
       lines.push("修改原因：" + A.qs("#fbkModifyReason").value.trim());
     }
 
     if (mode === "new") {
       lines.push("", "章节状况（" + stateTxt + "）");
       newChapterStates.forEach(function (state) {
-        lines.push("第" + state.label + "章：亲吻=" + stateLabel(state.kiss) + "，露点=" + stateLabel(state.nudity));
+        lines.push("第" + state.label + "章：亲吻=" + stateLabel(state.kiss) + "，ちくび=" + stateLabel(state.nudity));
       });
+      if (newTagAssignments.length) {
+        lines.push("", "章节 tag 分配：");
+        newTagAssignments.forEach(function (assignment) {
+          lines.push("- 第" + assignment.label + "章：" + assignment.tag);
+        });
+      }
     }
 
     if (mode === "modify" && selectedManga) {
@@ -482,10 +614,16 @@
         if (orig.kiss !== cur.kiss || orig.nudity !== cur.nudity) {
           changed = true;
           lines.push("- 第" + cur.label + "章：亲吻 " + stateLabel(orig.kiss) + " → " + stateLabel(cur.kiss) +
-            "，露点 " + stateLabel(orig.nudity) + " → " + stateLabel(cur.nudity));
+            "，ちくび " + stateLabel(orig.nudity) + " → " + stateLabel(cur.nudity));
         }
       });
       if (!changed) lines.push("- 章节色块未修改");
+      if (modifyTagAssignments.length) {
+        lines.push("", "章节 tag 分配：");
+        modifyTagAssignments.forEach(function (assignment) {
+          lines.push("- 第" + assignment.label + "章：" + assignment.tag);
+        });
+      }
     }
 
     lines.push("", "提交时间：" + new Date().toISOString());
@@ -515,14 +653,12 @@
 
     if (mode === "new") {
       fd.append("manga_title", A.qs("#fbkNewTitle").value.trim());
-      fd.append("manga_jp_title", A.qs("#fbkNewJpTitle").value.trim());
       fd.append("manga_alt_titles", A.qs("#fbkNewAltTitles").value.trim());
       fd.append("manga_status", A.qs("#fbkNewStatus").value);
       fd.append("manga_author", A.qs("#fbkNewAuthor").value.trim());
       fd.append("chapter_count", String(newBaseCount));
     } else if (selectedManga) {
       fd.append("manga_title", selectedManga.title);
-      fd.append("manga_slug", selectedManga.slug);
       fd.append("modify_reason", A.qs("#fbkModifyReason").value.trim());
     }
 
@@ -550,7 +686,12 @@
       if (ok) {
         showStatus("ok", "提交成功！审核通过后，新增/修改的条目会出现在对应位置。");
         A.qs("#feedbackForm").reset();
+        newTagAssignments = [];
+        modifyTagAssignments = [];
         renderNewChapterCells();
+        renderTagAssignList("new");
+        renderTagAssignList("modify");
+        refreshTagAssignUI("modify");
         selectManga(A.qs("#fbkModifyManga").value || "");
         setMode("new");
       } else {

@@ -1,0 +1,107 @@
+manga-data.js 全部字段构成
+================================================================
+
+根结构
+----------------------------------------------------------------
+window.KIGUBI_DATA = [
+  漫画对象,
+  漫画对象,
+  ...
+]
+
+
+一、漫画层字段
+----------------------------------------------------------------
+title          必填    string        站内唯一标识，同时用作 URL 参数 id
+altTitles      可选    string[]      别名
+author         可选    string        作者
+status         可选    string        连载中 / 已完结 / 休刊
+cover          可选    string        封面路径：assets/covers/xxx.jpg 或外链；无封面省略
+description    可选    string        一句话 / 一段简介
+tags           可选    array         元素为 string 或 tag 对象（见“四、tag 元素”）
+demo           可选    boolean       true 时首页显示示例角标
+chapters       可选    array         章节列表
+
+
+二、章节层字段
+----------------------------------------------------------------
+order          必填    number        排序用；普通章节为整数，特典用小数如 5.5
+title          可选    string        章节标题；没有 title 时详细模式不显示标题
+note           可选    string        章节备注（折叠模式显示提示）
+tags           可选    array         同漫画层 tags
+kissUnknown    可选    true 或 1     亲吻情况未知
+nudityUnknown  可选    true 或 1     ちくび情况未知
+kiss           可选    array         亲吻场景；规则见“三、场景值与 k/ n 规则”
+nudity         可选    array         ちくび；规则同 kiss
+
+
+三、场景值与 kiss / nudity 规则
+----------------------------------------------------------------
+kiss / nudity 取值：
+  1) 无信息             -> 整个字段省略
+  2) 有但没写人物        -> [ 1 ]
+  3) 有且写了人物/场景    -> [ 场景对象, ... ]
+
+场景对象字段：
+  characters     可选    string        人物，如 "A × B"
+  note           可选    string        情境与镜头描述
+  tags           可选    array         同漫画层 tags
+
+
+四、tag 元素
+----------------------------------------------------------------
+两种写法：
+
+  1) 字符串： "人物遮挡"
+
+  2) 对象：
+     {
+       name: "人物遮挡",        // 必填
+       note: "悬停注释",        // 可选；有 note 自动粉色，并显示琥珀色 i 徽标 + 悬停提示
+       pink: true              // 可选；没有 note 也强制显示粉色
+     }
+
+
+五、省略与压缩规则
+----------------------------------------------------------------
+- 空字符串、空数组、false 一律省略。
+- 没有 title / note / tags / kissUnknown / nudityUnknown / kiss / nudity 的章节压缩为：
+      { order: 1 }
+- kiss / nudity 的内容尽量写在一行：
+      { order: 6,
+        kiss: [ { characters: "灯子 x 侑", note: "情境描述", tags: [ { name: "遮挡" } ] } ],
+      }
+- 场景对象至少 characters / note / tags 之一有内容，否则不输出。
+- 标注为 unknown 的字段（kissUnknown / nudityUnknown）与对应场景数组不要同时输出。
+
+
+六、内容边界
+----------------------------------------------------------------
+- 允许：封面图、章节号、角色名、文字描述、tag
+- 不允许：具体场景图片、ちくび截图、漫画资源/下载链接、图床外链、页码/时间点
+
+
+七、完整示例
+----------------------------------------------------------------
+{
+  title: "终将成为你",
+  altTitles: ["Bloom Into You"],
+  author: "仲谷鳰",
+  status: "已完结",
+  cover: "assets/covers/终将成为你.jpg",
+  description: "一句话简介",
+  tags: [ "校园", { name: "胃痛", note: "有虐心桥段", pink: true } ],
+  demo: true,
+  chapters: [
+    { order: 1 },
+    { order: 2,
+      title: "第2话",
+      kiss: [ { characters: "灯子 x 侑", note: "经典列车场面" } ],
+      nudity: [ 1 ],
+    },
+    { order: 3,
+      kiss: [ 1 ],
+      nudity: [ { characters: "侑", note: "入浴镜头", tags: [ { name: "沐浴" } ] } ],
+    }
+  ]
+}

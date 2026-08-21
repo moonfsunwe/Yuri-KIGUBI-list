@@ -14,7 +14,7 @@ KIGUBI LIST — 审核流程（维护者文档）
 第二、访客投稿
 
 1. 访客打开 feedback.html，填写新增漫画或修改已有漫画。
-   - 新增漫画：需要标题、日文原名、几章，可填写别名、连载状况、作者。
+   - 新增漫画：需要标题、几章，可填写别名、连载状况、作者。
    - 章节色块：未知 → 有 → 无，相邻整数章节之间可插入 .5 特典章节。
    - 修改漫画：搜索选择漫画后修改章节色块，可插入 .5 特典章节，必须写修改原因。
 2. 点击「生成 GitHub Issue」后，会弹窗预览整理好的 Issue 内容。
@@ -24,18 +24,18 @@ KIGUBI LIST — 审核流程（维护者文档）
 第三、审核投稿
 
 1. 在 GitHub Issues 中查看带 submission / pending 标签的投稿。
-2. 核对标题、日文原名、别名、章节状态、修改原因与变更对照。
+2. 核对标题、别名、章节状态、修改原因与变更对照。
 3. 通过：把标签 pending 改成 approved，然后选择 Close issue。
 4. 不通过：直接关闭 Issue 即可，无需改 approved。
 
 第四、写入数据
 
-1. 打开 data/manga-data.js，按现有结构插入记录。
-2. slug 全站唯一，建议英文短横线。
+1. 打开 data/manga-data.js，按现有结构插入记录；也可运行 data-gen.py（Python GUI）生成并直接写入本地文件。
+2. title 全站唯一，同时作为 URL 里的 id；不要再写 slug / jpTitle 字段。
 3. 章节 order 支持小数，例如 5.5 表示第 5.5 话特典。
-4. kiss / nudity 数组中的场景对象只写 characters 和 note，不要出现资源链接。
+4. kiss / nudity 数组中的场景对象只写 characters / note / tags，不要出现资源链接与图片。
 5. 可选字段：kissUnknown / nudityUnknown 可设为 true 或 1，表示该章节对应情况未知。
-6. 可选字段 jpTitle 写日文原名，altTitles 写别名。
+6. 可选字段 altTitles 写别名；tags 可写字符串数组或 { name, note }。
 7. 推送部署后全站自动更新。
 
 第五、Issue 标签维护

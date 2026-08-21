@@ -1,4 +1,4 @@
-/* 详情页：单部漫画的章节与亲吻/露点场景记录（折叠 / 详细两种模式） */
+/* 详情页：单部漫画的章节与亲吻/ちくび记录（折叠 / 详细两种模式） */
 (function () {
   "use strict";
 
@@ -11,8 +11,8 @@
     var root = A.qs("#detail");
     if (!root) return;
 
-    var slug = new URLSearchParams(window.location.search).get("id");
-    var manga = slug ? A.getManga(slug) : null;
+    var title = new URLSearchParams(window.location.search).get("id");
+    var manga = title ? A.getManga(title) : null;
 
     if (!manga) {
       renderMissing(root);
@@ -41,8 +41,11 @@
       view.textContent = "";
       var chapters = (manga.chapters || []).slice().sort(function (a, b) { return a.order - b.order; });
       if (state.mode === "detailed") {
+        var visibleChapters = chapters.filter(function (chapter) {
+          return (chapter.kiss && chapter.kiss.length > 0) || (chapter.nudity && chapter.nudity.length > 0);
+        });
         var list = A.makeEl("div", "chapter-list");
-        chapters.forEach(function (chapter) {
+        visibleChapters.forEach(function (chapter) {
           list.appendChild(renderChapterCard(chapter));
         });
         view.appendChild(list);
@@ -94,8 +97,8 @@
     var wrap = A.makeEl("div", "chapter-strip");
 
     var legend = A.makeEl("div", "chapter-strip-legend");
-    legend.appendChild(legendItem("kiss", "有亲吻"));
-    legend.appendChild(legendItem("nudity", "有露点"));
+    legend.appendChild(legendItem("kiss", "亲吻"));
+    legend.appendChild(legendItem("nudity", "ちくび"));
     legend.appendChild(legendItem("unknown", "未知"));
     legend.appendChild(legendItem("empty", "无记录"));
     wrap.appendChild(legend);
@@ -125,8 +128,8 @@
     node.className = "chapter-node";
     var title = chapter.title || "第" + chapter.order + "话";
     var aria = title
-      + (kissUnknown ? "（亲吻情况未知）" : (hasKiss ? "（有亲吻记录）" : "（无亲吻记录）"))
-      + (nudityUnknown ? "（露点情况未知）" : (hasNudity ? "（有露点记录）" : "（无露点记录）"));
+      + (kissUnknown ? "（亲吻情况未知）" : (hasKiss ? "（亲吻记录）" : "（无亲吻记录）"))
+      + (nudityUnknown ? "（ちくび情况未知）" : (hasNudity ? "（ちくび记录）" : "（无ちくび记录）"));
     node.setAttribute("aria-label", aria);
 
     node.appendChild(A.makeEl("span", "node-half kiss" + (kissUnknown ? " unknown" : (hasKiss ? " on" : ""))));
@@ -137,7 +140,7 @@
     if (nudityUnknown) node.appendChild(A.makeEl("span", "node-unknown nudity", "?"));
 
     node.addEventListener("click", function () {
-      setModeFromNode(chapter.id);
+      setModeFromNode(chapter.order);
     });
     wrap.appendChild(node);
 
@@ -154,23 +157,25 @@
     return wrap;
   }
 
-  function setModeFromNode(chapterId) {
+  function setModeFromNode(chapterOrder) {
     state.mode = "detailed";
     setModeButtons();
     var root = A.qs("#detail");
     var view = A.qs("#chapterView");
     view.textContent = "";
 
-    var mangaSlug = new URLSearchParams(window.location.search).get("id");
-    var manga = A.getManga(mangaSlug);
+    var title = new URLSearchParams(window.location.search).get("id");
+    var manga = A.getManga(title);
     var chapters = (manga.chapters || []).slice().sort(function (a, b) { return a.order - b.order; });
     var list = A.makeEl("div", "chapter-list");
     chapters.forEach(function (chapter) {
-      list.appendChild(renderChapterCard(chapter));
+      if ((chapter.kiss && chapter.kiss.length > 0) || (chapter.nudity && chapter.nudity.length > 0)) {
+        list.appendChild(renderChapterCard(chapter));
+      }
     });
     view.appendChild(list);
 
-    var target = document.getElementById("chapter-" + chapterId);
+    var target = document.getElementById("chapter-" + chapterOrder);
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -186,12 +191,19 @@
 
   function renderChapterCard(chapter) {
     var card = A.makeEl("article", "chapter-card");
-    card.id = "chapter-" + chapter.id;
+    card.id = "chapter-" + chapter.order;
 
     var head = A.makeEl("div", "chapter-head");
     head.appendChild(A.makeEl("span", "chapter-no", String(chapter.order)));
-    head.appendChild(A.makeEl("h3", null, chapter.title || "第" + chapter.order + "话"));
+    if (chapter.title) {
+      head.appendChild(A.makeEl("h3", null, chapter.title));
+    }
     card.appendChild(head);
+
+    if (A.renderTagChips) {
+      var chapterTags = A.renderTagChips(chapter.tags);
+      if (chapterTags) card.appendChild(chapterTags);
+    }
 
     var grid = A.makeEl("div", "chapter-grid");
     grid.appendChild(A.sceneBlock(chapter, "kiss", isUnknown(chapter.kissUnknown)));
@@ -228,7 +240,7 @@
     warn.appendChild(A.makeEl("span", "mode-warn-mark", "!"));
     detailedWrap.appendChild(warn);
 
-    var tip = A.makeEl("span", "mode-tip", "可能包含剧透：详细模式会显示亲吻 / 露点场景的具体文字描述。");
+    var tip = A.makeEl("span", "mode-tip", "包含具体标签，可能会指出具体角色");
     detailedWrap.appendChild(tip);
 
     bar.appendChild(detailedWrap);
@@ -290,23 +302,29 @@
     meta.appendChild(metaItem("作者", manga.author || "—"));
     meta.appendChild(metaItem("章节", counts.chapters + " 话"));
     meta.appendChild(metaItem("亲吻记录", counts.kiss + " 条"));
-    meta.appendChild(metaItem("露点记录", counts.nudity + " 条"));
-    if (manga.updatedAt) meta.appendChild(metaItem("最近更新", manga.updatedAt));
+    meta.appendChild(metaItem("ちくび记录", counts.nudity + " 条"));
     main.appendChild(meta);
 
     main.appendChild(A.makeEl("p", "detail-desc", manga.description || ""));
 
-    var modifyLink = A.makeEl("a", "btn-ghost", "修改这部漫画的场景记录 →");
-    modifyLink.href = "feedback.html?modify=" + encodeURIComponent(manga.slug);
+    var tagList = renderDetailTags(manga.tags);
+    if (tagList) main.appendChild(tagList);
+
+    var modifyLink = A.makeEl("a", "btn-ghost", "信息有误？点此反馈 →");
+    modifyLink.href = "feedback.html?modify=" + encodeURIComponent(manga.title);
     main.appendChild(modifyLink);
 
     var note = A.makeEl("p", "detail-note detail-alt");
-    note.textContent = "本站只记录信息。章节折叠格子的两半分别代表亲吻 / 露点记录的有无，展开后显示角色与文字描述。";
+    note.textContent = "本站信息不保证百分百正确，如有错误请及时反馈。";
     main.appendChild(note);
 
     hero.appendChild(frame);
     hero.appendChild(main);
     return hero;
+  }
+
+  function renderDetailTags(tags) {
+    return A.renderTagChips ? A.renderTagChips(tags) : null;
   }
 
   function makeFallback(manga) {

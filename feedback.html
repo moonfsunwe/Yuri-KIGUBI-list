@@ -4,12 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>提交数据 | KIGUBI LIST</title>
-  <meta name="description" content="新增漫画或修改已有漫画的亲吻/露点场景信息。填写表单后自动整理为 GitHub Issue 提交。">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💋</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta name="description" content="新增漫画或修改已有漫画的亲吻/ちくび信息。填写表单后自动整理为 GitHub Issue 提交。">
+  <link rel="icon" href="assets/favicon.svg">  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -17,7 +13,7 @@
   <header class="site-header">
     <div class="nav-inner">
       <a class="brand" href="index.html" aria-label="KIGUBI LIST 首页">
-        <span class="brand-mark" aria-hidden="true">💋</span>
+        <span class="brand-mark" aria-hidden="true"><img src="assets/favicon.svg" alt="" class="brand-mark-icon"></span>
         <span class="brand-text">
           <span class="brand-name">KIGUBI LIST</span>
           <span class="brand-sub">漫画场景信息索引</span>
@@ -53,15 +49,9 @@
 
         <!-- 新增漫画 -->
         <section class="fb-panel active" id="panelNew" aria-label="新增漫画">
-          <div class="form-row">
-            <div class="field">
-              <label for="fbkNewTitle">标题<span class="field-hint">必填</span></label>
-              <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题（站内展示用）">
-            </div>
-            <div class="field">
-              <label for="fbkNewJpTitle">日文原名<span class="field-hint">必填</span></label>
-              <input class="input" id="fbkNewJpTitle" name="newJpTitle" placeholder="例：星屑シンフォニア">
-            </div>
+          <div class="field">
+            <label for="fbkNewTitle">标题<span class="field-hint">必填 · 同时作为站内唯一标识</span></label>
+            <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题（站内展示用）">
           </div>
 
           <div class="form-row">
@@ -92,8 +82,27 @@
           </div>
 
           <p class="chapter-cells-title">章节情况</p>
-          <p class="chapter-cells-hint">默认全部未知（蓝色问号）。点击色块左上半（亲吻）或右下半（露点）切换：未知 → 有 → 无；把鼠标移到相邻章节之间的 +，可插入 .5 特典章节。</p>
+          <p class="chapter-cells-hint">点击色块左上半（亲吻）或右下半（ちくび）切换：未知 → 有 → 无；点击 + 可插入 .5 特典章节。</p>
           <div class="chapter-cells" id="newChapterCells"></div>
+
+          <div class="tag-assign">
+            <p class="chapter-cells-title">章节 tag 分配</p>
+            <p class="chapter-cells-hint">选择章节后点击即可为选择的章节添加 tag 。特殊情况可以自行输入 tag，如有必要将会采用作为新 tag</p>
+            <div class="tag-assign-row">
+              <label for="newTagChapter">章节</label>
+              <select id="newTagChapter" class="select"></select>
+            </div>
+            <div class="tag-assign-existing">
+              <span class="tag-assign-existing-label">已有 tag（点选即添加）</span>
+              <div class="tag-assign-chips" id="newTagChips"></div>
+            </div>
+            <div class="tag-assign-new-row">
+              <input id="newTagName" class="input" list="newTagDatalist" placeholder="输入新 tag ">
+              <datalist id="newTagDatalist"></datalist>
+              <button type="button" class="btn-ghost" id="newTagAdd">添加新 tag</button>
+            </div>
+            <ul class="tag-assign-list" id="newTagAssignList"></ul>
+          </div>
         </section>
 
         <!-- 修改已有漫画 -->
@@ -105,14 +114,46 @@
           </div>
 
           <p class="chapter-cells-title">章节情况</p>
-          <p class="chapter-cells-hint">粉色/紫色 = 有记录；灰色 = 无记录；蓝色问号 = 已有未知（不能修改成未知）。点击半边仅在“有 / 无”之间切换；相邻整数章节之间的 + 可插入 .5 特典章节。</p>
+          <p class="chapter-cells-hint">粉色/紫色 = 有记录；灰色 = 无记录；蓝色 = 未知。</p>
+          <p class="chapter-cells-hint">点击章节之间的 + 可插入 .5 特典章节，点击最后一章后面的 + 可新增章节。</p>
           <div class="chapter-cells" id="modifyChapterCells"></div>
+
+          <div class="tag-assign">
+            <p class="chapter-cells-title">章节 tag 分配</p>
+            <p class="chapter-cells-hint">选择章节。下方会列出目前网站上已有的所有 tag，选好章节后点一下 tag 即可添加；也可以输入新 tag 后手动添加。</p>
+            <div class="tag-assign-row">
+              <label for="modifyTagChapter">章节</label>
+              <select id="modifyTagChapter" class="select"></select>
+            </div>
+            <div class="tag-assign-existing">
+              <span class="tag-assign-existing-label">已有 tag（点选即添加）</span>
+              <div class="tag-assign-chips" id="modifyTagChips"></div>
+            </div>
+            <div class="tag-assign-new-row">
+              <input id="modifyTagName" class="input" list="modifyTagDatalist" placeholder="或输入新 tag 后添加">
+              <datalist id="modifyTagDatalist"></datalist>
+              <button type="button" class="btn-ghost" id="modifyTagAdd">添加新 tag</button>
+            </div>
+            <ul class="tag-assign-list" id="modifyTagAssignList"></ul>
+          </div>
 
           <div class="field">
             <label for="fbkModifyReason">修改原因<span class="field-hint">必填</span></label>
-            <textarea class="textarea" id="fbkModifyReason" name="modifyReason" placeholder="请说明为什么修改，例如：第2话露点此前漏记，补充为有；或第1话亲吻记录有误。"></textarea>
+            <textarea class="textarea" id="fbkModifyReason" name="modifyReason" placeholder="在此处补充更改理由与其他信息"></textarea>
           </div>
         </section>
+
+        <div class="tags-notes">
+          <p class="chapter-cells-title">tags 说明</p>
+          <ul class="tags-notes-list">
+            <li>舌吻：必须画出舌头才可添加</li>
+            <li>拉丝：必须画出拉丝效果才可添加</li>
+            <li>人物遮挡：指嘴唇被人物头部等遮挡</li>
+            <li>环境遮挡：指嘴唇被环境或物体遮挡</li>
+            <li>无上色：ちぐび专用tag，只画出凸起的形状，需要与单纯的没画作出区分</li>
+            <li>衣物：ちぐび专用tag，透过衣物</li>
+          </ul>
+        </div>
 
         <label class="check-row">
           <input type="checkbox" id="fbkConsent" name="consent">
@@ -150,7 +191,7 @@
     <div class="footer-inner">
       <div class="grow">
         <strong>KIGUBI LIST</strong>
-        <p>按漫画、按章节收录亲吻与露点场景信息。所有条目仅为文字索引：无资源链接、无场景图片（漫画封面除外）。</p>
+        <p>按漫画章节收录信息。所有条目仅为文字索引，无资源链接、无场景图片。</p>
         <p>© <span data-year>2025</span> · 由维护者审核整理</p>
       </div>
       <div>

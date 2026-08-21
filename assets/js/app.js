@@ -44,23 +44,98 @@
     return { kiss: kiss, nudity: nudity, chapters: chapters };
   }
 
-  function getManga(slug) {
+  function getManga(title) {
     for (var i = 0; i < DATA.length; i++) {
-      if (DATA[i].slug === slug) return DATA[i];
+      if (DATA[i].title === title) return DATA[i];
     }
     return null;
   }
 
   function searchText(manga) {
-    var parts = [manga.title, manga.jpTitle || ""]
+    var parts = [manga.title]
       .concat(manga.altTitles || [])
       .concat([manga.author || "", manga.status || ""]);
+    (manga.tags || []).forEach(function (t) {
+      parts.push(typeof t === "string" ? t : (t.name || ""));
+      if (t && t.note) parts.push(t.note);
+    });
     (manga.chapters || []).forEach(function (ch) {
-      parts.push(ch.title || "");
-      (ch.kiss || []).forEach(function (s) { parts.push(s.characters || "", s.note || ""); });
-      (ch.nudity || []).forEach(function (s) { parts.push(s.characters || "", s.note || ""); });
+      parts.push(ch.title || "", ch.note || "");
+      (ch.tags || []).forEach(function (t) {
+        parts.push(typeof t === "string" ? t : (t.name || ""));
+      });
+      (ch.kiss || []).forEach(function (s) {
+        parts.push(s.characters || "", s.note || "");
+        (s.tags || []).forEach(function (t) {
+          parts.push(typeof t === "string" ? t : (t.name || ""));
+        });
+      });
+      (ch.nudity || []).forEach(function (s) {
+        parts.push(s.characters || "", s.note || "");
+        (s.tags || []).forEach(function (t) {
+          parts.push(typeof t === "string" ? t : (t.name || ""));
+        });
+      });
     });
     return normalize(parts.join(" "));
+  }
+
+  function tagName(t) {
+    if (!t) return "";
+    if (typeof t === "string") return t.trim();
+    return String(t.name || "").trim();
+  }
+
+  function mangaTagNames(manga) {
+    var set = {};
+    function add(list) {
+      (list || []).forEach(function (t) {
+        var name = tagName(t);
+        if (name) set[name] = true;
+      });
+    }
+    add(manga.tags);
+    (manga.chapters || []).forEach(function (ch) {
+      add(ch.tags);
+      (ch.kiss || []).forEach(function (s) { add(s && s.tags); });
+      (ch.nudity || []).forEach(function (s) { add(s && s.tags); });
+    });
+    return Object.keys(set);
+  }
+
+  function listAllTagNames() {
+    var set = {};
+    DATA.forEach(function (manga) {
+      mangaTagNames(manga).forEach(function (name) { set[name] = true; });
+    });
+    return Object.keys(set).sort(function (a, b) {
+      return a.localeCompare(b, "zh-Hans-CN", { sensitivity: "base" });
+    });
+  }
+
+  function listHalfTagNames(half) {
+    var set = {};
+    DATA.forEach(function (manga) {
+      (manga.chapters || []).forEach(function (ch) {
+        (ch[half] || []).forEach(function (scene) {
+          (scene && scene.tags || []).forEach(function (t) {
+            var name = tagName(t);
+            if (name) set[name] = true;
+          });
+        });
+      });
+    });
+    return Object.keys(set).sort(function (a, b) {
+      return a.localeCompare(b, "zh-Hans-CN", { sensitivity: "base" });
+    });
+  }
+
+  function listKissTagNames() {
+    return listHalfTagNames("kiss");
+  }
+
+  function listNudityTagNames() {
+    return listHalfTagNames("nudity");
   }
 
   /* ---------- 检索 / 排序 / 筛选 ---------- */
@@ -68,6 +143,7 @@
   function filterManga(query, filters) {
     var words = normalize(query).split(/\s+/).filter(Boolean);
     var f = filters || {};
+    var filterTags = (f.tags || []).filter(Boolean);
 
     return DATA.filter(function (manga) {
       if (f.ongoing && manga.status !== "连载中") return false;
@@ -76,6 +152,11 @@
       var counts = sceneCounts(manga);
       if (f.hasKiss && counts.kiss === 0) return false;
       if (f.hasNudity && counts.nudity === 0) return false;
+
+      if (filterTags.length) {
+        var tags = mangaTagNames(manga);
+        if (!filterTags.every(function (name) { return tags.indexOf(name) !== -1; })) return false;
+      }
 
       if (!words.length) return true;
 
@@ -86,15 +167,10 @@
 
   function sortManga(list, mode) {
     var copy = list.slice();
-    if (mode === "title") {
-      copy.sort(function (a, b) { return a.title.localeCompare(b.title, "zh-Hans-CN", { sensitivity: "base" }); });
-    } else if (mode === "chapters") {
+    if (mode === "chapters") {
       copy.sort(function (a, b) { return sceneCounts(b).chapters - sceneCounts(a).chapters || a.title.localeCompare(b.title, "zh-Hans-CN"); });
-    } else { // recent
-      copy.sort(function (a, b) {
-        return String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")) ||
-          a.title.localeCompare(b.title, "zh-Hans-CN");
-      });
+    } else { // 默认按标题
+      copy.sort(function (a, b) { return a.title.localeCompare(b.title, "zh-Hans-CN", { sensitivity: "base" }); });
     }
     return copy;
   }
@@ -106,7 +182,7 @@
     var counts = sceneCounts(manga);
 
     var coverLink = makeEl("a", "manga-cover");
-    coverLink.href = "manga.html?id=" + encodeURIComponent(manga.slug);
+    coverLink.href = "manga.html?id=" + encodeURIComponent(manga.title);
     coverLink.setAttribute("aria-label", manga.title);
 
     var fallback = makeEl("span", "cover-fallback");
@@ -132,7 +208,7 @@
     var body = makeEl("div", "manga-body");
     var title = makeEl("h3", "manga-title");
     var titleLink = makeEl("a", null, manga.title);
-    titleLink.href = "manga.html?id=" + encodeURIComponent(manga.slug);
+    titleLink.href = "manga.html?id=" + encodeURIComponent(manga.title);
     title.appendChild(titleLink);
     body.appendChild(title);
     if (manga.author) {
@@ -152,8 +228,8 @@
     }
 
     var meta = makeEl("div", "manga-meta");
-    meta.appendChild(makeEl("span", "count-badge kiss", "亲吻 " + counts.kiss));
-    meta.appendChild(makeEl("span", "count-badge nudity", "露点 " + counts.nudity));
+    if (counts.kiss > 0) meta.appendChild(makeEl("span", "count-badge kiss", "亲吻"));
+    if (counts.nudity > 0) meta.appendChild(makeEl("span", "count-badge nudity", "ちくび"));
     meta.appendChild(makeEl("span", "count-badge chapters", counts.chapters + " 话"));
     body.appendChild(meta);
 
@@ -167,16 +243,56 @@
   function emptyRecord(kind, unknown) {
     if (unknown) {
       var p = makeEl("p", "record-empty unknown");
-      p.setAttribute("aria-label", kind === "kiss" ? "本话亲吻场景情况未知" : "本话露点场景情况未知");
+      p.setAttribute("aria-label", kind === "kiss" ? "本话亲吻场景情况未知" : "本话ちくび情况未知");
       p.appendChild(makeEl("span", "record-unknown-pattern", "?   ?   ?   ?   ?   ?"));
       p.appendChild(makeEl("span", "record-unknown-text", kind === "kiss"
         ? "本话亲吻场景情况未知"
-        : "本话露点场景情况未知"));
+        : "本话ちくび情况未知"));
       return p;
     }
     return makeEl("p", "record-empty", kind === "kiss"
       ? "本话暂无亲吻场景记录。"
-      : "本话暂无露点场景记录。");
+      : "本话暂无ちくび记录。");
+  }
+
+  function normalizeTag(tag) {
+    if (typeof tag === "string") return { name: tag, note: "", pink: false };
+    if (tag && tag.name) {
+      return {
+        name: String(tag.name),
+        note: tag.note ? String(tag.note) : "",
+        pink: tag.pink === true || tag.pink === 1 || tag.tone === "pink"
+      };
+    }
+    return null;
+  }
+
+  function renderTagChips(tags) {
+    var list = (tags || []).map(normalizeTag).filter(Boolean);
+    if (!list.length) return null;
+
+    var box = makeEl("div", "detail-tags tag-chips");
+    list.forEach(function (tag) {
+      var item = makeEl("span", "detail-tag-item");
+
+      var chip = makeEl("span", "detail-tag", tag.name);
+
+      if (tag.pink || tag.note) {
+        chip.classList.add("pink");
+      }
+
+      if (tag.note) {
+        chip.classList.add("has-note");
+        chip.appendChild(makeEl("span", "tag-note-mark", "i"));
+        var tip = makeEl("span", "tag-tip", tag.note);
+        item.appendChild(tip);
+      }
+
+      item.appendChild(chip);
+
+      box.appendChild(item);
+    });
+    return box;
   }
 
   function sceneItemEl(scene, type) {
@@ -189,13 +305,18 @@
     }
 
     if (scene.note) li.appendChild(makeEl("p", "record-note", scene.note));
+
+    if (scene.tags && scene.tags.length) {
+      var tagsBox = renderTagChips(scene.tags);
+      if (tagsBox) li.appendChild(tagsBox);
+    }
     return li;
   }
 
   function sceneBlock(chapter, type, unknown) {
     var block = makeEl("section", "record-panel");
     var head = makeEl("h4", "record-head " + type);
-    head.appendChild(document.createTextNode(type === "kiss" ? "亲吻场景" : "露点场景"));
+    head.appendChild(document.createTextNode(type === "kiss" ? "亲吻场景" : "ちくび"));
     block.appendChild(head);
 
     var list = makeEl("ul", "record-list");
@@ -241,7 +362,11 @@
     getManga: getManga,
     filterManga: filterManga,
     sortManga: sortManga,
+    listAllTagNames: listAllTagNames,
+    listKissTagNames: listKissTagNames,
+    listNudityTagNames: listNudityTagNames,
     renderMangaCard: renderMangaCard,
+    renderTagChips: renderTagChips,
     sceneItemEl: sceneItemEl,
     sceneBlock: sceneBlock,
     setActiveNav: setActiveNav,

@@ -4,29 +4,49 @@
 
   var A = window.KIGUBI_APP;
 
-  var ACTIVE_FILTERS = { ongoing: false, finished: false, hasKiss: false, hasNudity: false };
-  var FILTER_DEFS = [
-    { id: "ongoing", label: "连载中" },
-    { id: "finished", label: "已完结" },
-    { id: "hasKiss", label: "有亲吻" },
-    { id: "hasNudity", label: "有露点" }
-  ];
+  var ACTIVE_FILTERS = {};
+  var KISS_DEFS = [];
+  var NUDITY_DEFS = [];
+
+  function buildFilterDefs() {
+    KISS_DEFS = [{ id: "hasKiss", label: "亲吻" }];
+    (A.listKissTagNames() || []).forEach(function (tag) {
+      if (tag !== "亲吻") KISS_DEFS.push({ id: "tag:" + tag, label: tag, tag: tag });
+    });
+
+    NUDITY_DEFS = [{ id: "hasNudity", label: "ちくび" }];
+    (A.listNudityTagNames() || []).forEach(function (tag) {
+      if (tag !== "ちくび") NUDITY_DEFS.push({ id: "tag:" + tag, label: tag, tag: tag });
+    });
+  }
+
+  function currentFilters() {
+    var f = { tags: [] };
+    KISS_DEFS.concat(NUDITY_DEFS).forEach(function (def) {
+      if (!ACTIVE_FILTERS[def.id]) return;
+      if (def.id === "hasKiss") f.hasKiss = true;
+      else if (def.id === "hasNudity") f.hasNudity = true;
+      else if (def.tag) f.tags.push(def.tag);
+    });
+    return f;
+  }
 
   function init() {
     A.boot();
+    buildFilterDefs();
 
     var grid = A.qs("#mangaGrid");
     var resultLabel = A.qs("#resultLabel");
     var searchInput = A.qs("#searchInput");
     var sortSelect = A.qs("#sortSelect");
-    var filterCloud = A.qs("#filterCloud");
+    var kissCloud = A.qs("#kissFilterCloud");
+    var nudityCloud = A.qs("#nudityFilterCloud");
     var clearFilters = A.qs("#clearFilters");
 
-    renderOverviewStats();
-    renderFilterChips(filterCloud, clearFilters);
+    renderFilterClouds(kissCloud, nudityCloud, clearFilters);
 
     function currentQuery() { return searchInput ? searchInput.value : ""; }
-    function currentSort() { return sortSelect ? sortSelect.value : "recent"; }
+    function currentSort() { return sortSelect ? sortSelect.value : "title"; }
 
     function refresh() {
       renderGrid(grid, resultLabel, currentQuery(), currentSort());
@@ -43,63 +63,85 @@
 
     if (clearFilters) {
       clearFilters.addEventListener("click", function () {
-        ACTIVE_FILTERS.ongoing = false;
-        ACTIVE_FILTERS.finished = false;
-        ACTIVE_FILTERS.hasKiss = false;
-        ACTIVE_FILTERS.hasNudity = false;
-        renderFilterChips(filterCloud, clearFilters);
+        ACTIVE_FILTERS = {};
+        renderFilterClouds(kissCloud, nudityCloud, clearFilters);
         refresh();
       });
     }
 
     refresh();
+    maybeShowSpoilerModal();
   }
 
-  function renderOverviewStats() {
-    var kiss = 0;
-    var nudity = 0;
-    A.DATA.forEach(function (m) {
-      var c = A.sceneCounts(m);
-      kiss += c.kiss;
-      nudity += c.nudity;
+  /* ---------- 筛选 chips ---------- */
+
+  function renderFilterClouds(kissCloud, nudityCloud, clearBtn) {
+    if (kissCloud) renderFilterCloud(kissCloud, KISS_DEFS);
+    if (nudityCloud) renderFilterCloud(nudityCloud, NUDITY_DEFS);
+
+    var any = KISS_DEFS.concat(NUDITY_DEFS).some(function (def) {
+      return !!ACTIVE_FILTERS[def.id];
     });
-    A.setText(A.qs("#statManga"), String(A.DATA.length));
-    A.setText(A.qs("#statKiss"), String(kiss));
-    A.setText(A.qs("#statNudity"), String(nudity));
+    if (clearBtn) clearBtn.style.display = any ? "" : "none";
   }
 
-  function renderFilterChips(container, clearBtn) {
+  function renderFilterCloud(container, defs) {
     container.textContent = "";
 
-    FILTER_DEFS.forEach(function (def) {
+    defs.forEach(function (def) {
       var chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip" + (ACTIVE_FILTERS[def.id] ? " selected" : "");
       chip.textContent = def.label;
       chip.addEventListener("click", function () {
-        var nextValue = !ACTIVE_FILTERS[def.id];
-        ACTIVE_FILTERS[def.id] = nextValue;
-
-        // 连载中 / 已完结 互斥
-        if (nextValue) {
-          if (def.id === "ongoing") ACTIVE_FILTERS.finished = false;
-          if (def.id === "finished") ACTIVE_FILTERS.ongoing = false;
-        }
-
-        renderFilterChips(container, clearBtn);
+        ACTIVE_FILTERS[def.id] = !ACTIVE_FILTERS[def.id];
+        renderFilterClouds(A.qs("#kissFilterCloud"), A.qs("#nudityFilterCloud"), A.qs("#clearFilters"));
         renderGrid(A.qs("#mangaGrid"), A.qs("#resultLabel"),
           A.qs("#searchInput").value, A.qs("#sortSelect").value);
       });
       container.appendChild(chip);
     });
+  }
 
-    var any = FILTER_DEFS.some(function (def) { return ACTIVE_FILTERS[def.id]; });
-    clearBtn.style.display = any ? "" : "none";
+  function maybeShowSpoilerModal() {
+    var modal = A.qs("#spoilerModal");
+    if (!modal) return;
+    try {
+      if (localStorage.getItem("kigubiSpoilerDismissed") === "1") return;
+    } catch (e) { /* 隐私模式等情况下不阻断 */ }
+
+    var checkbox = A.qs("#spoilerNever");
+    var label = A.qs("#spoilerNeverLabel");
+    var confirm = A.qs("#spoilerConfirm");
+    if (!modal || !checkbox || !label || !confirm) return;
+
+    modal.hidden = false;
+
+    var seconds = 10;
+    label.textContent = "我已了解本网站将会造成一定程度的百合漫画剧透且不提供任何资源，下次不再提示（" + seconds + " 秒后可勾选）";
+    var timer = setInterval(function () {
+      seconds -= 1;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        checkbox.disabled = false;
+        label.textContent = "我已了解本网站将会造成一定程度的百合漫画剧透且不提供任何资源，下次不再提示";
+      } else {
+        label.textContent = "我已了解本网站将会造成一定程度的百合漫画剧透且不提供任何资源，下次不再提示（" + seconds + " 秒后可勾选）";
+      }
+    }, 1000);
+
+    confirm.addEventListener("click", function () {
+      try {
+        if (checkbox.checked) localStorage.setItem("kigubiSpoilerDismissed", "1");
+      } catch (e) { /* 忽略 */ }
+      clearInterval(timer);
+      modal.hidden = true;
+    });
   }
 
   function renderGrid(grid, resultLabel, query, sortMode) {
     grid.textContent = "";
-    var list = A.sortManga(A.filterManga(query, ACTIVE_FILTERS), sortMode);
+    var list = A.sortManga(A.filterManga(query, currentFilters()), sortMode);
 
     if (resultLabel) {
       resultLabel.textContent = "";
