@@ -576,7 +576,6 @@
 
   function buildMessage() {
     var lines = [];
-    var stateTxt = "未知→有→无；粉色/紫色=有，灰色=无，蓝色问号=未知";
 
     if (mode === "new") {
       lines.push("数据类型：新增漫画");
@@ -593,9 +592,61 @@
     }
 
     if (mode === "new") {
-      lines.push("", "章节状况（" + stateTxt + "）");
+      // 左边为具体情况，右边为章节：相同情况的章节合并到一行；
+      // 连续整数章节合并为 第1-8章，非整数章节（如 1.5）永远单独显示
+      var groupOrder = [];
+      var groups = {};
       newChapterStates.forEach(function (state) {
-        lines.push("第" + state.label + "章：亲吻=" + stateLabel(state.kiss) + "，ちくび=" + stateLabel(state.nudity));
+        var key = "亲吻=" + stateLabel(state.kiss) + "，ちくび=" + stateLabel(state.nudity);
+        if (!groups[key]) {
+          groups[key] = [];
+          groupOrder.push(key);
+        }
+        groups[key].push(String(state.label));
+      });
+
+      function chapterLabelList(labels) {
+        var ints = labels
+          .filter(function (label) { return /^\d+$/.test(String(label)); })
+          .map(Number)
+          .sort(function (a, b) { return a - b; });
+        var floats = labels
+          .filter(function (label) { return !/^\d+$/.test(String(label)); })
+          .map(Number)
+          .filter(function (n) { return isFinite(n); })
+          .sort(function (a, b) { return a - b; });
+
+        var items = [];
+
+        var start = ints[0];
+        var prev = start;
+        function flushRun(begin, end) {
+          if (begin === undefined) return;
+          if (begin === end) items.push({ order: begin, text: "第" + begin + "章" });
+          else items.push({ order: begin, text: "第" + begin + "-" + end + "章" });
+        }
+        for (var i = 1; i <= ints.length; i++) {
+          var cur = ints[i];
+          if (i < ints.length && cur === prev + 1) {
+            prev = cur;
+          } else {
+            flushRun(start, prev);
+            start = cur;
+            prev = cur;
+          }
+        }
+
+        floats.forEach(function (num) {
+          items.push({ order: num, text: "第" + num + "章" });
+        });
+
+        items.sort(function (a, b) { return a.order - b.order; });
+        return items.map(function (item) { return item.text; });
+      }
+
+      lines.push("", "章节状况：");
+      groupOrder.forEach(function (key) {
+        lines.push(key + "：" + chapterLabelList(groups[key]).join("、"));
       });
       if (newTagAssignments.length) {
         lines.push("", "章节 tag 分配：");

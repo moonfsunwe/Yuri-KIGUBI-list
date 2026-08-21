@@ -6,7 +6,47 @@
 
 搜集与整理百合漫画中的キス＆ちぐび信息，仅提供信息，不提供资源、下载链接与具体场景图片
 
-欢迎爱好者上传相关数据，共同完善本网站
+欢迎将网站分享给相关爱好者，欢迎上传相关数据，共同完善本网站
+
+请勿在公共场合传播该网站，请勿将该网站分享非相关爱好者
+
+## 使用 PR 上传数据
+data\manga-data.js 内为全站数据，有能力的话可以通过提交 PR 直接修改代码上传数据
+
+一、漫画层字段
+----------------------------------------------------------------
+title          必填    string        站内唯一标识，同时用作 URL 参数 id
+altTitles      可选    string[]      别名
+author         可选    string        作者
+status         可选    string        连载中（只有连载中的情况下需要填写）
+cover          可选    string        封面路径：assets/covers/xxx.jpg 或外链；无封面省略
+description    可选    string        一段简介
+tags           可选    array         元素为 string 或 tag 对象（见“四、tag 元素”）
+chapters       可选    array         章节列表
+
+二、章节层字段
+----------------------------------------------------------------
+order          必填    number        排序用；普通章节为整数，特典用小数如 5.5
+title          可选    string        章节标题
+note           可选    string        章节备注（折叠模式显示提示）
+tags           可选    array         同漫画层 tags
+kissUnknown    可选    true          亲吻情况未知
+nudityUnknown  可选    true          ちくび情况未知
+kiss           可选    array         亲吻场景；规则见“三、场景值与 k/ n 规则”
+nudity         可选    array         ちくび；规则同 kiss
+
+三、kiss和nudity
+----------------------------------------------------------------
+  characters     可选    string        人物，如 "A × B"（全程就一对可以不写，主要是我懒，写上也可以）
+  note           可选    string        一些情节描述
+  tags           可选    array         同漫画层 tags
+
+四、tag 元素
+----------------------------------------------------------------
+  name          必填    string    tag名称
+  note          可选    string    悬停注释
+  pink          可选    true      没有 note 也强制显示粉色
+
 
 ## 免责声明
 
