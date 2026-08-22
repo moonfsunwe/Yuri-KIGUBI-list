@@ -1,23 +1,3 @@
-/* 漫画场景数据 —— 维护者按此结构增删改。
- *
- * 结构说明：
- * - title：站内标识与展示标题（全站唯一，也用于 URL）
- * - altTitles：别名数组
- * - tags：可选，可出现在“漫画 / 章节 / 亲吻场景 / ちくび”任意一层。
- *   每项可为字符串或 { name, note }；note 可选，作为鼠标悬停注释
- * - cover：漫画封面（允许展示），用 assets/covers/ 下的文件或外链
- * - chapters[].title：章节标题（特典等 .5 章节照常写，例如“第5.5话”）
- * - chapters[].order：排序用数字；特典章节可用 5.5 这样的 .5 小数
- * - chapters[].kiss[]：亲吻场景记录
- * - chapters[].nudity[]：ちくび记录（只记录信息，不放图）
- * - chapters[].kissUnknown / nudityUnknown：可选，true 或 1 表示该章对应情况未知，
- *   折叠模式的色块会显示未知色与问号，详细模式会显示“情况未知”
- * - chapters[].note：可选，章节备注；折叠模式会为该章显示提示标记，
- *   鼠标指向章节色块时会显示章节名与备注
- * - 场景 note：文字描述，只描述发生情境与镜头信息；不要出现页码、图片外链或资源链接
- *
- * 当前内容为演示用示例数据。正式上线前请替换为你实际整理的作品。
- */
 (function () {
   "use strict";
 
@@ -78,7 +58,7 @@
         { order: 36 },
         { order: 36.5,
           title: "幕间 - 对答案中",
-          kiss: [ { characters: "儿玉 x 箱崎", } ],
+          kiss: [ { characters: "儿玉 x 箱崎", note:"成年组cp" } ],
         },
         { order: 37 },
         { order: 38 },
@@ -100,11 +80,13 @@
       cover: "assets/covers/即使只有一次也会后悔.jpg",
       chapters: [
         { order: 1,
+          note: "无上色：仅画出形状",
           nudity: [ { tags: [ { name: "无上色" } ] } ],
         },
         { order: 2 },
         { order: 3 },
         { order: 4,
+          note: "衣物：透过衣物",
           nudity: [ { tags: [ { name: "衣物" } ] } ],
         },
         { order: 5 },
@@ -112,10 +94,11 @@
           kiss: [ { tags: [ { name: "舌吻", pink:true}, { name: "拉丝" , pink:true } ] } ],
         },
         { order: 7,
+          note: "无上色：仅画出形状",
           nudity: [ { tags: [ { name: "无上色" } ] } ],
         },
         { order: 8,
-          note: "提灯喵汉化版本进行了和谐处理，需要观看台湾角川版或生肉版本",
+          note: "提灯喵汉化版本进行了和谐处理，需要观看台版或生肉",
           nudity: [ 1 ],
         },
         { order: 9 },
@@ -145,7 +128,7 @@
         },
         { order: 19.5,
           title: "3卷番外",
-          note: "某些地方的提灯喵汉化版本进行了和谐处理，需要观看台湾角川版或生肉版本",
+          note: "某些地方的提灯喵汉化版本进行了和谐处理，需要观看台版或生肉",
           kiss: [ 1 ],
           nudity: [ 1 ]
         }

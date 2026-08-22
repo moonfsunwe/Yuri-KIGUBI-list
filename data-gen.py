@@ -1,20 +1,20 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """KIGUBI 数据生成器（维护者 GUI）
-
+ 
 用法：
     python data-gen.py
 
 功能：
     - 填写漫画基本信息
-    - 章节数字格：左键点击半区在「未知 → 有 → 无」之间循环；
-      整数格之间的 + 可插入 .5 特典；右键数字格打开该章节的详细编辑窗口
+    - 章节数字格：左键点击半区在「无 → 有 → 未知」之间循环；
+      整数格之间的 + 可插入 .5 特典；右键数字格选中该章；
+      ✕ 删除该章
+    - 所有编辑均在同一个主窗口中完成：章节、标签、场景都在下方面板编辑
     - 预览生成并直接写入本地 data/manga-data.js（写入前自动备份为 .bak，原有内容保留）
 """
 
 import json
 import re
-import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -259,297 +259,216 @@ def new_chapter(order):
     }
 
 
-# ---------------------------------------------------------------- 弹窗
-
-def center_window(win, width, height):
-    win.update_idletasks()
-    sw = win.winfo_screenwidth()
-    sh = win.winfo_screenheight()
-    x = max(0, (sw - width) // 2)
-    y = max(0, (sh - height) // 2)
-    win.geometry(f"{width}x{height}+{x}+{y}")
-
-
-class TagDialog(tk.Toplevel):
-    """单个标签：name + note。"""
-
-    def __init__(self, master, tag=None):
-        super().__init__(master)
-        self.title("标签")
-        self.result = None
-        self.resizable(False, False)
-        self.transient(master)
-
-        tag = tag or {"name": "", "note": ""}
-        self.var_name = tk.StringVar(value=tag.get("name", ""))
-        self.var_note = tk.StringVar(value=tag.get("note", ""))
-        self.var_pink = tk.BooleanVar(value=tag.get("pink") is True or tag.get("pink") == 1 or tag.get("tone") == "pink")
-
-        body = ttk.Frame(self, padding=16)
-        body.pack(fill=tk.BOTH, expand=True)
-        ttk.Label(body, text="标签名").grid(row=0, column=0, sticky="w")
-        ttk.Entry(body, textvariable=self.var_name, width=34).grid(row=0, column=1, pady=6)
-        ttk.Label(body, text="悬停注释").grid(row=1, column=0, sticky="w")
-        ttk.Entry(body, textvariable=self.var_note, width=34).grid(row=1, column=1, pady=6)
-        ttk.Checkbutton(body, text="粉色标签（无 note 也显示粉色）", variable=self.var_pink
-                        ).grid(row=2, column=0, columnspan=2, sticky="w", pady=(4, 0))
-
-        btns = ttk.Frame(body)
-        btns.grid(row=3, column=0, columnspan=2, pady=(12, 0))
-        ttk.Button(btns, text="确定", command=self._ok).pack(side=tk.LEFT, padx=8)
-        ttk.Button(btns, text="取消", command=self.destroy).pack(side=tk.LEFT, padx=8)
-
-        self.bind("<Return>", lambda e: self._ok())
-        self.bind("<Escape>", lambda e: self.destroy())
-        self.grab_set()
-        center_window(self, 430, 260)
-        self.wait_window(self)
-
-    def _ok(self):
-        name = self.var_name.get().strip()
-        if not name:
-            self.destroy()
-            return
-        self.result = {"name": name, "note": self.var_note.get().strip(), "pink": self.var_pink.get()}
-        self.destroy()
-
-
-def edit_tag(master, tag=None):
-    dlg = TagDialog(master, tag)
-    return dlg.result
-
+# ---------------------------------------------------------------- 单窗口内嵌编辑器
 
 class TagsEditor(ttk.Frame):
-    """标签小编辑器：列表 + 添加/删除。"""
+    """窗口内嵌的标签编辑器：列表 + 表单 + 添加/更新/删除。"""
 
-    def __init__(self, master, tags, height=3):
+    def __init__(self, master, tags, height=4):
         super().__init__(master)
         self.tags = tags
+        self.selected_index = None
+
         self.listbox = tk.Listbox(self, height=height, activestyle="dotbox")
         self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        bar = ttk.Frame(self)
-        bar.pack(side=tk.LEFT, fill=tk.Y, padx=4)
-        ttk.Button(bar, text="添加", width=6, command=self._add).pack(pady=2)
-        ttk.Button(bar, text="编辑", width=6, command=self._edit).pack(pady=2)
-        ttk.Button(bar, text="删除", width=6, command=self._del).pack(pady=2)
+        self.listbox.bind("<<ListboxSelect>>", self._on_list_select)
+
+        form = ttk.Frame(self)
+        form.pack(side=tk.LEFT, fill=tk.Y, padx=8)
+
+        ttk.Label(form, text="标签名").grid(row=0, column=0, sticky="w")
+        self.var_name = tk.StringVar()
+        ttk.Entry(form, textvariable=self.var_name, width=18).grid(row=0, column=1, pady=3, padx=(4, 0))
+
+        ttk.Label(form, text="备注").grid(row=1, column=0, sticky="w")
+        self.var_note = tk.StringVar()
+        ttk.Entry(form, textvariable=self.var_note, width=18).grid(row=1, column=1, pady=3, padx=(4, 0))
+
+        self.var_pink = tk.BooleanVar(value=False)
+        ttk.Checkbutton(form, text="粉色", variable=self.var_pink).grid(
+            row=2, column=0, columnspan=2, sticky="w", pady=(2, 4))
+
+        btns = ttk.Frame(form)
+        btns.grid(row=3, column=0, columnspan=2)
+        ttk.Button(btns, text="添加", width=7, command=self._add).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btns, text="更新选中", width=9, command=self._update).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btns, text="删除选中", width=9, command=self._delete).pack(side=tk.LEFT, padx=2)
+
         self.refresh()
 
-    def _selected_index(self):
-        sel = self.listbox.curselection()
-        return sel[0] if sel else None
+    def set_tags(self, tags):
+        self.tags = tags
+        self.selected_index = None
+        self.var_name.set("")
+        self.var_note.set("")
+        self.var_pink.set(False)
+        self.refresh()
 
     def refresh(self):
         self.listbox.delete(0, tk.END)
         for t in self.tags:
-            note = ("  // " + t["note"]) if t["note"] else ""
-            self.listbox.insert(tk.END, t["name"] + note)
+            note = ("  // " + t["note"]) if t.get("note") else ""
+            pink = "  [粉]" if t.get("pink") else ""
+            self.listbox.insert(tk.END, t.get("name", "") + note + pink)
+
+    def _on_list_select(self, event=None):
+        sel = self.listbox.curselection()
+        if not sel:
+            return
+        self.selected_index = sel[0]
+        t = self.tags[self.selected_index]
+        self.var_name.set(t.get("name", ""))
+        self.var_note.set(t.get("note", ""))
+        self.var_pink.set(t.get("pink") is True)
+
+    def _collect(self):
+        return {
+            "name": self.var_name.get().strip(),
+            "note": self.var_note.get().strip(),
+            "pink": self.var_pink.get(),
+        }
 
     def _add(self):
-        dlg = TagDialog(self.winfo_toplevel())
-        if dlg.result:
-            self.tags.append(dlg.result)
-            self.refresh()
-
-    def _edit(self):
-        idx = self._selected_index()
-        if idx is None:
+        data = self._collect()
+        if not data["name"]:
+            messagebox.showwarning("标签", "标签名不能为空。", parent=self.winfo_toplevel())
             return
-        dlg = TagDialog(self.winfo_toplevel(), self.tags[idx])
-        if dlg.result:
-            self.tags[idx] = dlg.result
-            self.refresh()
-
-    def _del(self):
-        idx = self._selected_index()
-        if idx is None:
-            return
-        del self.tags[idx]
+        self.tags.append(data)
+        self.var_name.set("")
+        self.var_note.set("")
+        self.var_pink.set(False)
+        self.selected_index = None
         self.refresh()
 
+    def _update(self):
+        if self.selected_index is None:
+            messagebox.showwarning("标签", "请先在左侧列表选中要更新的标签。", parent=self.winfo_toplevel())
+            return
+        data = self._collect()
+        if not data["name"]:
+            messagebox.showwarning("标签", "标签名不能为空。", parent=self.winfo_toplevel())
+            return
+        self.tags[self.selected_index] = data
+        self.refresh()
 
-class SceneDialog(tk.Toplevel):
-    """一个吻戏/ちくび：characters + note + 场景标签。"""
-
-    def __init__(self, master, scene=None):
-        super().__init__(master)
-        self.title("场景记录")
-        self.result = None
-        self.resizable(True, True)
-        self.transient(master)
-
-        scene = scene or {"characters": "", "note": "", "tags": []}
-        self.scene = {"characters": scene.get("characters", ""),
-                      "note": scene.get("note", ""),
-                      "tags": [dict(t) for t in (scene.get("tags") or [])]}
-        self.var_char = tk.StringVar(value=self.scene["characters"])
-        self.var_note = tk.StringVar(value=self.scene["note"])
-
-        body = ttk.Frame(self, padding=16)
-        body.pack(fill=tk.BOTH, expand=True)
-        ttk.Label(body, text="人物（如 A × B）").grid(row=0, column=0, sticky="w")
-        ttk.Entry(body, textvariable=self.var_char, width=44).grid(row=0, column=1, pady=6)
-        ttk.Label(body, text="情境与镜头描述").grid(row=1, column=0, sticky="w")
-        ttk.Entry(body, textvariable=self.var_note, width=44).grid(row=1, column=1, pady=6)
-        ttk.Label(body, text="场景标签").grid(row=2, column=0, sticky="nw")
-        self.tags_editor = TagsEditor(body, self.scene["tags"], height=4)
-        self.tags_editor.grid(row=2, column=1, pady=6, sticky="we")
-
-        btns = ttk.Frame(body)
-        btns.grid(row=3, column=0, columnspan=2, pady=(12, 0))
-        ttk.Button(btns, text="确定", command=self._ok).pack(side=tk.LEFT, padx=8)
-        ttk.Button(btns, text="取消", command=self.destroy).pack(side=tk.LEFT, padx=8)
-
-        self.bind("<Return>", lambda e: self._ok())
-        self.bind("<Escape>", lambda e: self.destroy())
-        self.grab_set()
-        center_window(self, 560, 330)
-        self.wait_window(self)
-
-    def _ok(self):
-        self.scene["characters"] = self.var_char.get().strip()
-        self.scene["note"] = self.var_note.get().strip()
-        self.scene["tags"] = self.tags_editor.tags
-        self.result = self.scene
-        self.destroy()
-
-
-def edit_scene(master, scene=None):
-    dlg = SceneDialog(master, scene)
-    return dlg.result
+    def _delete(self):
+        if self.selected_index is None:
+            messagebox.showwarning("标签", "请先在左侧列表选中要删除的标签。", parent=self.winfo_toplevel())
+            return
+        del self.tags[self.selected_index]
+        self.selected_index = None
+        self.var_name.set("")
+        self.var_note.set("")
+        self.var_pink.set(False)
+        self.refresh()
 
 
 class ScenesEditor(ttk.Frame):
-    """场景列表编辑器：Treeview + 添加/编辑/删除。"""
+    """窗口内嵌的场景编辑器：场景列表 + 人物/描述 + 场景标签。"""
 
-    def __init__(self, master, scenes, height=4):
+    def __init__(self, master, scenes, height=5):
         super().__init__(master)
         self.scenes = scenes
-        self.tree = ttk.Treeview(self, columns=("c", "n"), show="headings", height=height)
-        self.tree.heading("c", text="人物")
-        self.tree.heading("n", text="描述")
-        self.tree.column("c", width=140, anchor="w")
-        self.tree.column("n", width=280, anchor="w")
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        bar = ttk.Frame(self)
-        bar.pack(side=tk.LEFT, fill=tk.Y, padx=4)
-        ttk.Button(bar, text="添加", width=6, command=self._add).pack(pady=2)
-        ttk.Button(bar, text="编辑", width=6, command=self._edit).pack(pady=2)
-        ttk.Button(bar, text="删除", width=6, command=self._del).pack(pady=2)
+        self.selected_index = None
+
+        self.listbox = tk.Listbox(self, height=height, activestyle="dotbox")
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.listbox.bind("<<ListboxSelect>>", self._on_list_select)
+
+        form = ttk.Frame(self)
+        form.pack(side=tk.LEFT, fill=tk.Y, padx=8)
+
+        ttk.Label(form, text="人物").grid(row=0, column=0, sticky="w")
+        self.var_char = tk.StringVar()
+        ttk.Entry(form, textvariable=self.var_char, width=16).grid(row=0, column=1, pady=3, padx=(4, 0))
+
+        ttk.Label(form, text="描述").grid(row=1, column=0, sticky="w")
+        self.var_note = tk.StringVar()
+        ttk.Entry(form, textvariable=self.var_note, width=16).grid(row=1, column=1, pady=3, padx=(4, 0))
+
+        btns = ttk.Frame(form)
+        btns.grid(row=2, column=0, columnspan=2, pady=4)
+        ttk.Button(btns, text="添加场景", width=9, command=self._add).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btns, text="更新选中", width=9, command=self._update).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btns, text="删除选中", width=9, command=self._delete).pack(side=tk.LEFT, padx=2)
+
+        ttk.Label(form, text="场景标签").grid(row=3, column=0, columnspan=2, sticky="w", pady=(4, 0))
+        self.tags_editor = TagsEditor(form, [], height=3)
+        self.tags_editor.grid(row=4, column=0, columnspan=2, sticky="we", pady=(4, 0))
+
         self.refresh()
 
-    def _selected(self):
-        sel = self.tree.selection()
-        return self.tree.item(sel[0], "text") if sel else None
-
-    def _index(self):
-        sel = self.tree.selection()
-        return int(sel[0]) if sel else None
+    def set_scenes(self, scenes):
+        self.scenes = scenes
+        self.selected_index = None
+        self.var_char.set("")
+        self.var_note.set("")
+        self.tags_editor.set_tags([])
+        self.refresh()
 
     def refresh(self):
-        for iid in self.tree.get_children():
-            self.tree.delete(iid)
-        for i, s in enumerate(self.scenes):
-            self.tree.insert("", tk.END, iid=str(i), values=(s.get("characters", ""),
-                                                              s.get("note", "")))
+        self.listbox.delete(0, tk.END)
+        for s in self.scenes:
+            chars = s.get("characters", "") or "（未填人物）"
+            note = s.get("note", "")
+            tags = s.get("tags") or []
+            tag_names = ", ".join(t.get("name", "") for t in tags if t.get("name"))
+            line = chars + ("  |  " + note if note else "") + ("  (" + tag_names + ")" if tag_names else "")
+            self.listbox.insert(tk.END, line)
+
+    def _current_tags(self):
+        return self.tags_editor.tags
+
+    def _on_list_select(self, event=None):
+        sel = self.listbox.curselection()
+        if not sel:
+            return
+        self.selected_index = sel[0]
+        s = self.scenes[self.selected_index]
+        self.var_char.set(s.get("characters", ""))
+        self.var_note.set(s.get("note", ""))
+        self.tags_editor.set_tags(s.setdefault("tags", []))
+
+    def _collect(self):
+        return {
+            "characters": self.var_char.get().strip(),
+            "note": self.var_note.get().strip(),
+            "tags": list(self.tags_editor.tags),
+        }
 
     def _add(self):
-        dlg = SceneDialog(self.winfo_toplevel())
-        if dlg.result:
-            self.scenes.append(dlg.result)
-            self.refresh()
-
-    def _edit(self):
-        idx = self._index()
-        if idx is None:
+        data = self._collect()
+        if not data["characters"] and not data["note"] and not data["tags"]:
+            messagebox.showwarning("场景", "请至少填写人物、描述或标签中的一项。", parent=self.winfo_toplevel())
             return
-        dlg = SceneDialog(self.winfo_toplevel(), self.scenes[idx])
-        if dlg.result:
-            self.scenes[idx] = dlg.result
-            self.refresh()
-
-    def _del(self):
-        idx = self._index()
-        if idx is None:
-            return
-        del self.scenes[idx]
+        self.scenes.append(data)
+        self.selected_index = None
+        self.var_char.set("")
+        self.var_note.set("")
+        self.tags_editor.set_tags([])
         self.refresh()
 
+    def _update(self):
+        if self.selected_index is None:
+            messagebox.showwarning("场景", "请先在左侧列表选中要更新的场景。", parent=self.winfo_toplevel())
+            return
+        data = self._collect()
+        if not data["characters"] and not data["note"] and not data["tags"]:
+            messagebox.showwarning("场景", "请至少填写人物、描述或标签中的一项。", parent=self.winfo_toplevel())
+            return
+        self.scenes[self.selected_index] = data
+        self.refresh()
 
-class ChapterEditor(tk.Toplevel):
-    """右键章节格时弹出的详细编辑窗口。"""
-
-    def __init__(self, master, chapter, on_close=None):
-        super().__init__(master)
-        self.title(f"编辑第 {chapter.get('order', '?')} 章")
-        self.chapter = chapter
-        self.on_close = on_close
-        self.resizable(True, True)
-        self.transient(master)
-        self.grab_set()
-
-        self.var_title = tk.StringVar(value=chapter.get("title", ""))
-        self.var_order = tk.StringVar(value=str(chapter.get("order", "")))
-        self.var_note = tk.StringVar(value=chapter.get("note", ""))
-        self.var_kiss_unknown = tk.BooleanVar(value=is_unknown(chapter.get("kissUnknown")))
-        self.var_nudity_unknown = tk.BooleanVar(value=is_unknown(chapter.get("nudityUnknown")))
-
-        frame = ttk.Frame(self, padding=16)
-        frame.pack(fill=tk.BOTH, expand=True)
-
-        ttk.Label(frame, text="order").grid(row=0, column=0, sticky="w")
-        ttk.Entry(frame, textvariable=self.var_order, width=12).grid(row=0, column=1, sticky="w", pady=5)
-        ttk.Label(frame, text="标题（可选）").grid(row=0, column=2, sticky="w", padx=(12, 0))
-        ttk.Entry(frame, textvariable=self.var_title, width=48).grid(row=0, column=3, pady=5)
-
-        ttk.Label(frame, text="备注 note").grid(row=1, column=0, sticky="w")
-        ttk.Entry(frame, textvariable=self.var_note, width=72).grid(row=1, column=1, columnspan=3, sticky="we", pady=5)
-
-        ttk.Checkbutton(frame, text="亲吻未知 (kissUnknown)", variable=self.var_kiss_unknown,
-                        command=lambda: self._set_unknown("kissUnknown", self.var_kiss_unknown.get())
-                        ).grid(row=2, column=0, columnspan=2, sticky="w")
-        ttk.Checkbutton(frame, text="ちくび未知 (nudityUnknown)", variable=self.var_nudity_unknown,
-                        command=lambda: self._set_unknown("nudityUnknown", self.var_nudity_unknown.get())
-                        ).grid(row=2, column=2, columnspan=2, sticky="w")
-
-        ttk.Label(frame, text="章节标签").grid(row=3, column=0, sticky="nw", pady=(8, 0))
-        self.tags_editor = TagsEditor(frame, chapter.setdefault("tags", []), height=4)
-        self.tags_editor.grid(row=3, column=1, columnspan=3, sticky="we", pady=(8, 0))
-
-        ttk.Label(frame, text="亲吻场景 kiss").grid(row=4, column=0, sticky="nw", pady=(8, 0))
-        self.kiss_editor = ScenesEditor(frame, chapter.setdefault("kiss", []), height=5)
-        self.kiss_editor.grid(row=4, column=1, columnspan=3, sticky="we", pady=(8, 0))
-
-        ttk.Label(frame, text="ちくび nudity").grid(row=5, column=0, sticky="nw", pady=(8, 0))
-        self.nudity_editor = ScenesEditor(frame, chapter.setdefault("nudity", []), height=5)
-        self.nudity_editor.grid(row=5, column=1, columnspan=3, sticky="we", pady=(8, 0))
-
-        btns = ttk.Frame(frame)
-        btns.grid(row=6, column=0, columnspan=4, pady=(14, 0))
-        ttk.Button(btns, text="保存并关闭", command=self._ok).pack(side=tk.LEFT, padx=8)
-        ttk.Button(btns, text="取消", command=self.destroy).pack(side=tk.LEFT, padx=8)
-
-        self.bind("<Escape>", lambda e: self.destroy())
-        self.protocol("WM_DELETE_WINDOW", self.destroy)
-        self.wait_window(self)
-
-    def _set_unknown(self, key, value):
-        self.chapter[key] = True if value else False
-
-    def _ok(self):
-        try:
-            self.chapter["order"] = float(self.var_order.get().strip())
-        except ValueError:
-            pass
-        self.chapter["title"] = self.var_title.get().strip()
-        self.chapter["note"] = self.var_note.get().strip()
-        self.chapter["kissUnknown"] = self.var_kiss_unknown.get()
-        self.chapter["nudityUnknown"] = self.var_nudity_unknown.get()
-        self.chapter["tags"] = self.tags_editor.tags
-        self.chapter["kiss"] = self.kiss_editor.scenes
-        self.chapter["nudity"] = self.nudity_editor.scenes
-        if self.on_close:
-            self.on_close()
-        self.destroy()
+    def _delete(self):
+        if self.selected_index is None:
+            messagebox.showwarning("场景", "请先在左侧列表选中要删除的场景。", parent=self.winfo_toplevel())
+            return
+        del self.scenes[self.selected_index]
+        self.selected_index = None
+        self.var_char.set("")
+        self.var_note.set("")
+        self.tags_editor.set_tags([])
+        self.refresh()
 
 
 # ---------------------------------------------------------------- 章节格子
@@ -571,6 +490,7 @@ class ChapterCell(tk.Canvas):
         self.chapter = chapter
         self.on_cycle = on_cycle
         self.on_right_click = on_right_click
+        self.select_pending = False
         self.bind("<Button-1>", self._on_click)
         self.bind("<Button-3>", self._on_right_click)
         self.bind("<Enter>", lambda e: self.config(cursor="hand2"))
@@ -589,11 +509,9 @@ class ChapterCell(tk.Canvas):
                             fill=kiss_color, outline="", tags=("kiss",))
         self.create_polygon(CELL_W - pad, CELL_H - pad, CELL_W - pad, pad, pad, CELL_H - pad,
                             fill=nudity_color, outline="", tags=("nudity",))
-        # 白色对角线
         self.create_line(pad, CELL_H - pad, CELL_W - pad, pad, fill="#ffffff",
                          width=2, tags=("slash",))
 
-        # 数字为中心的小圆
         self.create_oval(CELL_W // 2 - 12, CELL_H // 2 - 12,
                          CELL_W // 2 + 12, CELL_H // 2 + 12,
                          fill="#fffdfb", outline="#e6d2c8", width=1)
@@ -601,7 +519,6 @@ class ChapterCell(tk.Canvas):
         self.create_text(CELL_W // 2, CELL_H // 2, text=str(order),
                          font=("Segoe UI", 9, "bold"), fill="#3d2f36", tags=("num",))
 
-        # 未知问号
         if kiss == "unknown":
             self.create_text(14, 9, text="?", font=("Segoe UI", 11, "bold"),
                              fill="#ffffff", tags=("qk",))
@@ -629,22 +546,48 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("KIGUBI 数据生成器（维护者用）")
-        self.root.geometry("1180x760")
-        self.root.minsize(960, 640)
+        self.root.geometry("1100x800")
+        self.root.minsize(1100, 780)
 
         self.chapters = [new_chapter(1)]
         self.manga_tags = []
+        self.current_chapter = None
 
         self._build_ui()
         self.rebuild_cells()
         self._update_cell_scroll_region()
+        self.select_chapter(self.chapters[0])
 
     # ---------- UI 构建 ----------
     def _build_ui(self):
-        main = ttk.Frame(self.root, padding=10)
-        main.pack(fill=tk.BOTH, expand=True)
+        outer = ttk.Frame(self.root, padding=10)
+        outer.pack(fill=tk.BOTH, expand=True)
 
-        # 上部：漫画信息
+        # 顶部操作条（始终可见）
+        top_bar = ttk.Frame(outer)
+        top_bar.pack(fill=tk.X, pady=(0, 10))
+        ttk.Button(top_bar, text="预览", command=self.preview).pack(side=tk.LEFT, padx=4)
+        ttk.Button(top_bar, text="插入 data/manga-data.js",
+                   command=self.write_to_data_file).pack(side=tk.LEFT, padx=4)
+
+        # 下方所有内容可垂直滚动，避免控件超出窗口不可见
+        wrapper = ttk.Frame(outer)
+        wrapper.pack(fill=tk.BOTH, expand=True)
+
+        self.main_canvas = tk.Canvas(wrapper, bd=0, highlightthickness=0)
+        self.main_vsb = ttk.Scrollbar(wrapper, orient=tk.VERTICAL, command=self.main_canvas.yview)
+        self.main_canvas.configure(yscrollcommand=self.main_vsb.set)
+        self.main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.main_vsb.pack(side=tk.RIGHT, fill=tk.Y)
+
+        main = ttk.Frame(self.main_canvas)
+        self._main_window = self.main_canvas.create_window((0, 0), window=main, anchor="nw")
+        main.bind("<Configure>", lambda e: self.main_canvas.configure(
+            scrollregion=self.main_canvas.bbox("all")))
+        self.main_canvas.bind("<Configure>", lambda e: self.main_canvas.itemconfigure(
+            self._main_window, width=e.width))
+
+        # 漫画基本信息
         info = ttk.LabelFrame(main, text="漫画基本信息", padding=10)
         info.pack(fill=tk.X)
 
@@ -678,6 +621,7 @@ class App:
         ttk.Checkbutton(grid, text="标记为示例数据（demo: true）", variable=self.var_demo).grid(
             row=4, column=0, columnspan=4, sticky="w", pady=(4, 0))
 
+        # 漫画标签：主窗口内直接维护
         row_tags = ttk.Frame(info)
         row_tags.pack(fill=tk.X, pady=(6, 0))
         ttk.Label(row_tags, text="漫画标签").pack(side=tk.LEFT)
@@ -685,7 +629,7 @@ class App:
         self.manga_tags_editor.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=8)
 
         # 章节工具条
-        ch_bar = ttk.LabelFrame(main, text="章节（左键点半区：无 → 有 → 未知；右键数字格：编辑该章；✕ 为删除本章）", padding=10)
+        ch_bar = ttk.LabelFrame(main, text="章节（左键点半区：无 → 有 → 未知；右键数字格：选中并编辑；✕ 为删除本章）", padding=10)
         ch_bar.pack(fill=tk.X, pady=(10, 0))
 
         bar = ttk.Frame(ch_bar)
@@ -724,17 +668,50 @@ class App:
         self._cell_window = self.cell_canvas.create_window((2, 2), window=self.cell_inner, anchor="nw")
         self.cell_canvas.pack(fill=tk.X, side=tk.TOP)
         self.cell_hbar.pack(fill=tk.X, side=tk.BOTTOM)
-        self.cell_inner.bind("<Configure>", lambda e: self.cell_canvas.configure(scrollregion=self.cell_canvas.bbox("all")))
+        self.cell_inner.bind("<Configure>", lambda e: self.cell_canvas.configure(
+            scrollregion=self.cell_canvas.bbox("all")))
+
+        # 章节编辑面板（主窗口内，不再弹窗）
+        edit = ttk.LabelFrame(main, text="章节编辑（右键数字格选中章节）", padding=10)
+        edit.pack(fill=tk.X, pady=(10, 0))
+
+        top = ttk.Frame(edit)
+        top.pack(fill=tk.X, pady=(0, 8))
+        ttk.Label(top, text="order").pack(side=tk.LEFT)
+        self.var_ch_order = tk.StringVar()
+        ttk.Entry(top, textvariable=self.var_ch_order, width=8).pack(side=tk.LEFT, padx=4)
+        ttk.Label(top, text="标题").pack(side=tk.LEFT, padx=(10, 0))
+        self.var_ch_title = tk.StringVar()
+        ttk.Entry(top, textvariable=self.var_ch_title, width=28).pack(side=tk.LEFT, padx=4)
+        ttk.Label(top, text="备注").pack(side=tk.LEFT, padx=(10, 0))
+        self.var_ch_note = tk.StringVar()
+        ttk.Entry(top, textvariable=self.var_ch_note, width=44).pack(side=tk.LEFT, padx=4)
+
+        self.var_ch_kiss_unknown = tk.BooleanVar(value=False)
+        self.var_ch_nudity_unknown = tk.BooleanVar(value=False)
+        ttk.Checkbutton(top, text="亲吻未知", variable=self.var_ch_kiss_unknown).pack(side=tk.LEFT, padx=(12, 0))
+        ttk.Checkbutton(top, text="ちくび未知", variable=self.var_ch_nudity_unknown).pack(side=tk.LEFT, padx=(8, 0))
+        ttk.Button(top, text="应用章节修改", command=self.save_current_chapter).pack(side=tk.RIGHT)
+
+        col1 = ttk.LabelFrame(edit, text="章节标签", padding=6)
+        col1.pack(fill=tk.X, pady=(0, 6))
+        self.ch_tags_editor = TagsEditor(col1, [], height=3)
+        self.ch_tags_editor.pack(fill=tk.X, pady=4)
+
+        col2 = ttk.LabelFrame(edit, text="亲吻场景 kiss", padding=6)
+        col2.pack(fill=tk.X, pady=6)
+        self.kiss_editor = ScenesEditor(col2, [], height=4)
+        self.kiss_editor.pack(fill=tk.X, pady=4)
+
+        col3 = ttk.LabelFrame(edit, text="ちくび nudity", padding=6)
+        col3.pack(fill=tk.X, pady=(6, 0))
+        self.nudity_editor = ScenesEditor(col3, [], height=4)
+        self.nudity_editor.pack(fill=tk.X, pady=4)
 
         # 预览与写入
         out = ttk.LabelFrame(main, text="输出", padding=10)
-        out.pack(fill=tk.BOTH, expand=True, pady=(10, 0))
-        btns = ttk.Frame(out)
-        btns.pack(fill=tk.X, pady=(0, 6))
-        ttk.Button(btns, text="预览生成条目", command=self.preview).pack(side=tk.LEFT, padx=4)
-        ttk.Button(btns, text="写入 data/manga-data.js（自动备份，不覆盖原内容）",
-                   command=self.write_to_data_file).pack(side=tk.LEFT, padx=4)
-        self.preview_text = tk.Text(out, height=10, font=("Consolas", 10))
+        out.pack(fill=tk.X, pady=(10, 0))
+        self.preview_text = tk.Text(out, height=8, font=("Consolas", 10))
         self.preview_text.pack(fill=tk.BOTH, expand=True)
 
     # ---------- 章节格 ----------
@@ -748,7 +725,7 @@ class App:
             wrap = ttk.Frame(self.cell_inner)
             cell = ChapterCell(wrap, ch,
                                on_cycle=self._on_cell_cycle,
-                               on_right_click=self._open_chapter_editor)
+                               on_right_click=self.select_chapter)
             cell.pack(side=tk.TOP, padx=2, pady=(4, 0))
             del_btn = ttk.Button(wrap, text="✕", width=3,
                                  command=lambda c=ch: self._delete_chapter(c))
@@ -778,15 +755,40 @@ class App:
 
     def _on_cell_cycle(self, chapter, half):
         cycle_half(chapter, half)
-        # 重绘兄弟控件
         for child in self.cell_inner.winfo_children():
-            if isinstance(child, ChapterCell):
-                child.redraw()
+            cells = [w for w in child.winfo_children() if isinstance(w, ChapterCell)]
+            for cell in cells:
+                cell.redraw()
 
-    def _open_chapter_editor(self, chapter):
-        def on_close():
-            self.rebuild_cells()
-        ChapterEditor(self.root, chapter, on_close=on_close)
+    # ---------- 章节编辑（主窗口内） ----------
+    def select_chapter(self, chapter):
+        self.current_chapter = chapter
+        self.var_ch_order.set(str(chapter.get("order", "")))
+        self.var_ch_title.set(chapter.get("title", ""))
+        self.var_ch_note.set(chapter.get("note", ""))
+        self.var_ch_kiss_unknown.set(is_unknown(chapter.get("kissUnknown")))
+        self.var_ch_nudity_unknown.set(is_unknown(chapter.get("nudityUnknown")))
+        self.ch_tags_editor.set_tags(chapter.setdefault("tags", []))
+        self.kiss_editor.set_scenes(chapter.setdefault("kiss", []))
+        self.nudity_editor.set_scenes(chapter.setdefault("nudity", []))
+
+    def save_current_chapter(self):
+        ch = self.current_chapter
+        if ch is None:
+            messagebox.showwarning("章节编辑", "请先在章节数字格上右键选择要编辑的章节。", parent=self.root)
+            return
+        try:
+            ch["order"] = float(self.var_ch_order.get().strip())
+        except ValueError:
+            pass
+        ch["title"] = self.var_ch_title.get().strip()
+        ch["note"] = self.var_ch_note.get().strip()
+        ch["kissUnknown"] = self.var_ch_kiss_unknown.get()
+        ch["nudityUnknown"] = self.var_ch_nudity_unknown.get()
+        ch["tags"] = list(self.ch_tags_editor.tags)
+        ch["kiss"] = list(self.kiss_editor.scenes)
+        ch["nudity"] = list(self.nudity_editor.scenes)
+        self.rebuild_cells()
 
     def _delete_chapter(self, chapter):
         if chapter in self.chapters:
@@ -795,7 +797,15 @@ class App:
             idx = next((i for i, c in enumerate(self.chapters) if c is chapter), -1)
             if idx >= 0:
                 self.chapters.pop(idx)
+        if self.current_chapter is chapter:
+            self.current_chapter = self.chapters[0] if self.chapters else None
         self.rebuild_cells()
+        if self.current_chapter is not None:
+            self.select_chapter(self.current_chapter)
+        else:
+            self.ch_tags_editor.set_tags([])
+            self.kiss_editor.set_scenes([])
+            self.nudity_editor.set_scenes([])
         return True
 
     def apply_batch_state(self):
@@ -827,19 +837,20 @@ class App:
                 ch[half + "Unknown"] = False
                 ch["_" + half + "On"] = True
 
-        for child in self.cell_inner.winfo_children():
-            if isinstance(child, ChapterCell):
-                child.redraw()
         self.rebuild_cells()
+        if self.current_chapter is not None:
+            self.select_chapter(self.current_chapter)
 
     def max_order(self):
         return max((c.get("order", 0) for c in self.chapters), default=0)
 
     def add_chapter(self):
         base = int(self.max_order()) + 1
-        self.chapters.append(new_chapter(base))
+        ch = new_chapter(base)
+        self.chapters.append(ch)
         self.chapters.sort(key=lambda c: c.get("order", 0))
         self.rebuild_cells()
+        self.select_chapter(ch)
 
     def add_special(self, after_order=None):
         if after_order is None:
@@ -849,19 +860,19 @@ class App:
             order = base + 0.5
         else:
             order = float(after_order) + 0.5
-        self.chapters.append(new_chapter(order))
+        ch = new_chapter(order)
+        self.chapters.append(ch)
         self.chapters.sort(key=lambda c: c.get("order", 0))
         self.rebuild_cells()
+        self.select_chapter(ch)
 
     def generate_count(self):
         count = int(self.var_count.get() or 0)
         count = max(1, min(300, count))
         wanted = set(range(1, count + 1))
         existing_int = {c.get("order") for c in self.chapters if self._is_int_order(c.get("order", 0))}
-        # 新增缺失整数章
         for n in wanted - existing_int:
             self.chapters.append(new_chapter(float(n)))
-        # 删除多余整数章：只删除没有实际内容的
         for c in list(self.chapters):
             o = c.get("order", 0)
             if self._is_int_order(o) and float(o) > count:
@@ -870,6 +881,7 @@ class App:
                     self.chapters.remove(c)
         self.chapters.sort(key=lambda c: c.get("order", 0))
         self.rebuild_cells()
+        self.select_chapter(self.chapters[0])
 
     # ---------- 生成 / 写入 ----------
     def collect_manga(self):

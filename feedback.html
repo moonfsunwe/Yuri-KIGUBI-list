@@ -29,9 +29,9 @@
   <main id="main" class="wrap page">
     <div class="form-shell">
       <p class="section-kicker">Submit Data</p>
-      <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">提交场景数据</h1>
+      <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">提交数据</h1>
       <p class="form-intro">
-        提交数据需要拥有 GitHub 账号：填写下方表单后，系统会自动整理成 GitHub Issue 内容，确认后跳转到 GitHub 提交。
+        提交数据需要拥有 GitHub 账号，系统会自动整理成 GitHub Issue 内容，确认后跳转到 GitHub 提交。
       </p>
 
       <div class="setup-notice" id="setupNotice">
@@ -146,8 +146,6 @@
         <div class="tags-notes">
           <p class="chapter-cells-title">tags 说明</p>
           <ul class="tags-notes-list">
-            <li>舌吻：必须画出舌头才可添加</li>
-            <li>拉丝：必须画出拉丝效果才可添加</li>
             <li>人物遮挡：指嘴唇被人物头部等遮挡</li>
             <li>环境遮挡：指嘴唇被环境或物体遮挡</li>
             <li>无上色：ちぐび专用tag，只画出凸起的形状，需要与单纯的没画作出区分</li>
@@ -155,10 +153,10 @@
           </ul>
         </div>
 
-        <label class="check-row">
+        <!-- <label class="check-row">
           <input type="checkbox" id="fbkConsent" name="consent">
           <span>我确认提交的内容会公开显示在 GitHub Issue 中，且本人有权提供这些信息。</span>
-        </label>
+        </label>-->
 
         <div class="submit-row">
           <button class="btn-primary" id="fbkSubmit" type="submit">提交数据</button>
@@ -170,15 +168,16 @@
         <div class="modal-card" role="dialog" aria-labelledby="issueModalTitle">
           <h2 id="issueModalTitle" style="margin:0 0 8px; font-family:var(--font-display);">确认投稿内容</h2>
           <p class="modal-hint">
-            点击下方按钮将打开 GitHub Issue 页面（标题、正文和标签已根据表单预填）。<br>
-            请在 GitHub 中确认内容后点击 <strong>Submit new issue</strong>。
+            点击下方按钮将打开 GitHub Issue 页面或百合会页面<br>
+            带有预填功能 <strong>无需自行复制内容</strong>。
           </p>
-          <label for="issueBodyPreview" class="field-label">将提交的 Issue 内容</label>
+          <label for="issueBodyPreview" class="field-label">将提交的内容</label>
           <textarea class="textarea" id="issueBodyPreview" readonly style="height:200px; margin-top:6px;"></textarea>
           <div class="modal-actions">
-            <button type="button" class="btn-ghost" id="issueCopy">复制内容</button>
             <button type="button" class="btn-ghost" id="issueCancel">返回修改</button>
             <a class="btn-primary" id="issueOpen" href="#" target="_blank" rel="noopener">前往 GitHub 提交 Issue</a>
+            <a class="btn-primary" id="lilyOpen" href="#" target="_blank" rel="noopener">前往百合会提交</a>
+          </div>
           </div>
         </div>
       </div>

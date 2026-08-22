@@ -36,7 +36,11 @@
       web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY",
 
       // Formspree（backend = "formspree" 时使用）
-      formspreeEndpoint: "https://formspree.io/f/YOUR_FORM_ID"
+      formspreeEndpoint: "https://formspree.io/f/YOUR_FORM_ID",
+
+      // 「前往百合会提交」按钮要打开的 Discuz! 发帖基础地址；
+      // 点击按钮时会自动在 URL 后追加 subject/message 预填（action=reply 时只追加 message）。
+      lilySubmitUrl: "https://bbs.yamibo.com/forum.php?mod=post&action=reply&fid=33&tid=567394"
     },
 
     // 你的仓库地址，用于页脚“审核流程”链接（可选）

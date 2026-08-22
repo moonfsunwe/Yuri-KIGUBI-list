@@ -36,7 +36,7 @@
   function updateBackendUi() {
     var submit = A.qs("#fbkSubmit");
     if (!submit) return;
-    submit.textContent = isGitHubMode() ? "生成 GitHub Issue" : "提交数据";
+    submit.textContent = isGitHubMode() ? "生成内容" : "提交数据";
   }
 
   function init() {
@@ -534,6 +534,48 @@
     modal.hidden = false;
   }
 
+  function openLilySubmit() {
+    var title = buildIssueTitle();
+    var body = issueBodyForUrl();
+    var text;
+    if (/^\[collapse=/.test(body)) {
+      // 修改已有漫画的正文已经自带 [collapse=...] 包装
+      text = body;
+    } else {
+      text = "[collapse=0," + title + "][code]" + body + "\n[/code][/collapse]";
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function () {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+
+    var base = (FB.lilySubmitUrl || "").trim();
+    var lilyOpen = A.qs("#lilyOpen");
+
+    if (base) {
+      var url = base;
+      if (url.indexOf("message=") === -1) {
+        // Discuz! 对 message 二次解码，不能直接把 " 编码成 %22；
+        // 先把 " 转成 &quot;，再交给 encodeURIComponent，最终 URL 中是 %26quot%3B
+        var discuzMessage = text.replace(/"/g, "&quot;");
+        url += (url.indexOf("?") === -1 ? "?" : "&") + "message=" + encodeURIComponent(discuzMessage);
+      }
+      if (lilyOpen) lilyOpen.href = url;
+      window.open(url, "_blank", "noopener");
+      showStatus("ok", "已复制，并打开百合会投稿页面。");
+    } else {
+      if (lilyOpen) lilyOpen.href = "#";
+      showStatus("err", "内容已复制。");
+    }
+
+    var modal = A.qs("#issueModal");
+    if (modal) modal.hidden = true;
+  }
+
   function bindIssueModal() {
     var modal = A.qs("#issueModal");
     if (!modal) return;
@@ -547,19 +589,27 @@
       showStatus("ok", "已打开 GitHub Issue 页面，请在页面中确认并点击 Submit new issue。");
     });
 
-    var copy = A.qs("#issueCopy");
+    var lilyOpen = A.qs("#lilyOpen");
+    if (lilyOpen) {
+      lilyOpen.addEventListener("click", function (event) {
+        event.preventDefault();
+        openLilySubmit();
+      });
+    }
+
+    /*var copy = A.qs("#issueCopy");
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
-      var text = bodyPreview.value;
+      var text = "[collapse=0]" + bodyPreview.value + "[/collapse=0]";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
-          showStatus("ok", "Issue 内容已复制。");
+          showStatus("ok", "内容已复制。");
         }).catch(function () { fallbackCopy(text); });
       } else {
         fallbackCopy(text);
       }
-    });
+    });*/
   }
 
   function fallbackCopy(text) {
@@ -575,110 +625,134 @@
   }
 
   function buildMessage() {
-    var lines = [];
-
     if (mode === "new") {
-      lines.push("数据类型：新增漫画");
-      lines.push("标题：" + A.qs("#fbkNewTitle").value.trim());
-      lines.push("别名：" + (A.qs("#fbkNewAltTitles").value.trim() || "未填"));
-      lines.push("连载状况：" + (A.qs("#fbkNewStatus").value || "未填"));
-      lines.push("作者：" + (A.qs("#fbkNewAuthor").value.trim() || "未填"));
-      var specialCount = newChapterStates.length - newBaseCount;
-      lines.push("章节数：" + newBaseCount + (specialCount > 0 ? "（含特典 " + specialCount + " 个：见章节状况中的 .5 章节）" : ""));
-    } else if (selectedManga) {
-      lines.push("数据类型：修改已有漫画");
-      lines.push("漫画：" + selectedManga.title);
-      lines.push("修改原因：" + A.qs("#fbkModifyReason").value.trim());
-    }
-
-    if (mode === "new") {
-      // 左边为具体情况，右边为章节：相同情况的章节合并到一行；
-      // 连续整数章节合并为 第1-8章，非整数章节（如 1.5）永远单独显示
-      var groupOrder = [];
-      var groups = {};
-      newChapterStates.forEach(function (state) {
-        var key = "亲吻=" + stateLabel(state.kiss) + "，ちくび=" + stateLabel(state.nudity);
-        if (!groups[key]) {
-          groups[key] = [];
-          groupOrder.push(key);
-        }
-        groups[key].push(String(state.label));
-      });
-
-      function chapterLabelList(labels) {
-        var ints = labels
-          .filter(function (label) { return /^\d+$/.test(String(label)); })
-          .map(Number)
-          .sort(function (a, b) { return a - b; });
-        var floats = labels
-          .filter(function (label) { return !/^\d+$/.test(String(label)); })
-          .map(Number)
-          .filter(function (n) { return isFinite(n); })
-          .sort(function (a, b) { return a - b; });
-
-        var items = [];
-
-        var start = ints[0];
-        var prev = start;
-        function flushRun(begin, end) {
-          if (begin === undefined) return;
-          if (begin === end) items.push({ order: begin, text: "第" + begin + "章" });
-          else items.push({ order: begin, text: "第" + begin + "-" + end + "章" });
-        }
-        for (var i = 1; i <= ints.length; i++) {
-          var cur = ints[i];
-          if (i < ints.length && cur === prev + 1) {
-            prev = cur;
-          } else {
-            flushRun(start, prev);
-            start = cur;
-            prev = cur;
-          }
-        }
-
-        floats.forEach(function (num) {
-          items.push({ order: num, text: "第" + num + "章" });
-        });
-
-        items.sort(function (a, b) { return a.order - b.order; });
-        return items.map(function (item) { return item.text; });
-      }
-
-      lines.push("", "章节状况：");
-      groupOrder.forEach(function (key) {
-        lines.push(key + "：" + chapterLabelList(groups[key]).join("、"));
-      });
-      if (newTagAssignments.length) {
-        lines.push("", "章节 tag 分配：");
-        newTagAssignments.forEach(function (assignment) {
-          lines.push("- 第" + assignment.label + "章：" + assignment.tag);
-        });
-      }
+      return buildNewMangaBody();
     }
 
     if (mode === "modify" && selectedManga) {
-      lines.push("", "变更对照（原 → 新）");
-      var changed = false;
-      modifyOriginal.forEach(function (orig, index) {
-        var cur = modifyCurrent[index];
-        if (!cur) return;
-        if (orig.kiss !== cur.kiss || orig.nudity !== cur.nudity) {
-          changed = true;
-          lines.push("- 第" + cur.label + "章：亲吻 " + stateLabel(orig.kiss) + " → " + stateLabel(cur.kiss) +
-            "，ちくび " + stateLabel(orig.nudity) + " → " + stateLabel(cur.nudity));
-        }
-      });
-      if (!changed) lines.push("- 章节色块未修改");
-      if (modifyTagAssignments.length) {
-        lines.push("", "章节 tag 分配：");
-        modifyTagAssignments.forEach(function (assignment) {
-          lines.push("- 第" + assignment.label + "章：" + assignment.tag);
-        });
-      }
+      var reason = A.qs("#fbkModifyReason").value.trim();
+      var jsBody = buildModifyMangaBody();
+      return "[collapse=0," + buildIssueTitle() + "]\n修改原因：" + reason + "\n[code]\n" + jsBody + "\n[/code]\n[/collapse]";
     }
 
-    lines.push("", "提交时间：" + new Date().toISOString());
+    return "";
+  }
+
+  function buildModifyMangaBody() {
+    var originalOrders = {};
+    (selectedManga.chapters || []).forEach(function (chapter) {
+      var order = parseFloat(chapter.order);
+      originalOrders[isFinite(order) ? String(order) : String(chapter.order)] = true;
+    });
+
+    var tagMap = {};
+    modifyTagAssignments.forEach(function (assignment) {
+      if (!tagMap[assignment.label]) tagMap[assignment.label] = [];
+      tagMap[assignment.label].push(assignment.tag);
+    });
+
+    var chapters = [];
+    modifyCurrent.forEach(function (cur, index) {
+      var orig = modifyOriginal[index];
+      var order = parseFloat(cur.label);
+      var orderKey = isFinite(order) ? String(order) : String(cur.label);
+      var isNew = !Object.prototype.hasOwnProperty.call(originalOrders, orderKey);
+      var tags = tagMap[String(cur.label)] || [];
+      var changed = !!orig && (orig.kiss !== cur.kiss || orig.nudity !== cur.nudity);
+
+      if (isNew || changed || tags.length) {
+        chapters.push(formatIssueChapter(cur.label, cur.kiss, cur.nudity, tags));
+      }
+    });
+
+    var lines = [];
+    lines.push("{");
+    lines.push("  title: " + jsString(selectedManga.title) + ",");
+    lines.push("  chapters: [");
+    chapters.forEach(function (chapter, index) {
+      var comma = index < chapters.length - 1 ? "," : "";
+      lines.push("    " + chapter + comma);
+    });
+    lines.push("  ]");
+    lines.push("}");
     return lines.join("\n");
+  }
+
+  function jsString(value) {
+    return JSON.stringify(String(value));
+  }
+
+  function buildNewMangaBody() {
+    var title = A.qs("#fbkNewTitle").value.trim();
+    var altRaw = A.qs("#fbkNewAltTitles").value.trim();
+    var altTitles = altRaw ? altRaw.replace(/，/g, ",").split(",").map(function (s) { return s.trim(); }).filter(Boolean) : [];
+    var author = A.qs("#fbkNewAuthor").value.trim();
+
+    var tagMap = {};
+    newTagAssignments.forEach(function (assignment) {
+      if (!tagMap[assignment.label]) tagMap[assignment.label] = [];
+      tagMap[assignment.label].push(assignment.tag);
+    });
+
+    var chapters = newChapterStates
+      .slice()
+      .sort(function (a, b) { return parseFloat(a.label) - parseFloat(b.label); })
+      .map(function (state) {
+        return formatIssueChapter(state.label, state.kiss, state.nudity, tagMap[String(state.label)] || []);
+      });
+
+    var lines = [];
+    lines.push("{");
+    lines.push("  title: " + jsString(title) + ",");
+    if (altTitles.length) {
+      lines.push("  altTitles: [" + altTitles.map(jsString).join(", ") + "],");
+    }
+    if (author) {
+      lines.push("  author: " + jsString(author) + ",");
+    }
+    lines.push("  cover: " + jsString("assets/covers/" + title + ".jpg") + ",");
+    lines.push("  chapters: [");
+    chapters.forEach(function (chapter, index) {
+      var comma = index < chapters.length - 1 ? "," : "";
+      lines.push("    " + chapter + comma);
+    });
+    lines.push("  ]");
+    lines.push("}");
+    return lines.join("\n");
+  }
+
+  function formatIssueChapter(label, kissState, nudityState, tagNames) {
+    var order = parseFloat(label);
+    var orderText = isFinite(order) ? String(order) : String(label);
+    var extras = [];
+
+    if (kissState === "unknown") {
+      extras.push("kissUnknown: true");
+    } else if (kissState === "has") {
+      extras.push("kiss: [ 1 ]");
+    }
+
+    if (nudityState === "unknown") {
+      extras.push("nudityUnknown: true");
+    } else if (nudityState === "has") {
+      extras.push("nudity: [ 1 ]");
+    }
+
+    if (tagNames.length) {
+      var tagObjects = tagNames.map(function (name) {
+        return "{ name: " + jsString(name) + " }";
+      });
+      extras.push("tags: [ " + tagObjects.join(", ") + " ]");
+    }
+
+    if (!extras.length) {
+      return "{ order: " + orderText + " }";
+    }
+
+    var text = "{ order: " + orderText + ",";
+    text += "\n      " + extras.join(",\n      ") + "\n    ";
+    text += "}";
+    return text;
   }
 
   function sendFeedback(button) {
