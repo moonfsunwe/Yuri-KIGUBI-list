@@ -31,7 +31,7 @@
       <p class="section-kicker">Submit Data</p>
       <h1 style="margin-top:0; font-family:var(--font-display); font-size:30px; font-weight:900;">提交数据</h1>
       <p class="form-intro">
-        提交数据需要拥有 GitHub 账号，系统会自动整理成 GitHub Issue 内容，确认后跳转到 GitHub 提交。
+        提交数据需要拥有 GitHub 账号或百合会账号，系统会自动整理内容，确认后跳转提交。
       </p>
 
       <div class="setup-notice" id="setupNotice">
@@ -50,21 +50,20 @@
         <!-- 新增漫画 -->
         <section class="fb-panel active" id="panelNew" aria-label="新增漫画">
           <div class="field">
-            <label for="fbkNewTitle">标题<span class="field-hint">必填 · 同时作为站内唯一标识</span></label>
+            <label for="fbkNewTitle">标题<span class="field-hint"></span></label>
             <input class="input" id="fbkNewTitle" name="newTitle" placeholder="漫画标题（站内展示用）">
           </div>
 
           <div class="form-row">
             <div class="field">
-              <label for="fbkNewAltTitles">别名<span class="field-hint">选填 · 多个用逗号分隔</span></label>
-              <input class="input" id="fbkNewAltTitles" name="newAltTitles" placeholder="例：Stardust Symphonia, 星尘交响曲">
+              <label for="fbkNewAltTitles">别名<span class="field-hint">选填 · 多个用 / 分隔</span></label>
+              <input class="input" id="fbkNewAltTitles" name="newAltTitles" placeholder="漫画原名或别名">
             </div>
             <div class="field">
-              <label for="fbkNewStatus">连载状况<span class="field-hint">选填</span></label>
+              <label for="fbkNewStatus">连载状况<span class="field-hint"></span></label>
               <select class="select" id="fbkNewStatus" name="newStatus">
-                <option value="">不填</option>
+                <option value="">已完结</option>
                 <option value="连载中">连载中</option>
-                <option value="已完结">已完结</option>
                 <option value="休刊">休刊</option>
               </select>
             </div>
@@ -72,11 +71,11 @@
 
           <div class="form-row">
             <div class="field">
-              <label for="fbkNewAuthor">作者<span class="field-hint">选填</span></label>
+              <label for="fbkNewAuthor">作者<span class="field-hint"></span></label>
               <input class="input" id="fbkNewAuthor" name="newAuthor" placeholder="作者名">
             </div>
             <div class="field">
-              <label for="fbkNewChapters">几章<span class="field-hint">必填 · 正篇话数</span></label>
+              <label for="fbkNewChapters">几章<span class="field-hint">正篇话数</span></label>
               <input class="input" id="fbkNewChapters" name="newChapters" type="number" min="1" max="300" inputmode="numeric" placeholder="例如：3">
             </div>
           </div>

@@ -23,7 +23,7 @@
 
       // 「前往百合会提交」按钮要打开的 Discuz! 发帖基础地址；
       // 点击按钮时会自动在 URL 后追加 subject/message 预填（action=reply 时只追加 message）。
-      lilySubmitUrl: "https://bbs.yamibo.com/forum.php?mod=post&action=reply&fid=19&tid=574144&fromuid=705003"
+      lilySubmitUrl: "https://bbs.yamibo.com/forum.php?mod=post&action=reply&fid=5&tid=575418&fromuid=705003"
     },
 
     // 你的仓库地址，用于页脚“审核流程”链接（可选）
