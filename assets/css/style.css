@@ -385,7 +385,7 @@ img { max-width: 100%; display: block; }
 }
 .demo-badge { left: auto; right: 10px; background: rgba(217, 154, 60, 0.9); }
 
-.manga-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.manga-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .manga-title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 16.5px; line-height: 1.35; }
 .manga-title a { color: var(--ink); }
 .manga-title a:hover { color: var(--rose-deep); }
@@ -407,7 +407,7 @@ img { max-width: 100%; display: block; }
   border-color: rgba(217, 79, 112, 0.28);
   background: rgba(217, 79, 112, 0.06);
 }
-.manga-meta { display: flex; flex-wrap: wrap; gap: 7px; }
+.manga-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; }
 .count-badge {
   display: inline-flex;
   align-items: center;
@@ -853,7 +853,7 @@ img { max-width: 100%; display: block; }
 .record-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 .record-chars { font-size: 15.5px; font-weight: 700; color: var(--ink); position: relative; top: 2px; }
 .record-chars::before { content: "—"; color: var(--muted); margin-right: 8px; }
-.record-note { margin: 8px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+.record-note { margin: 2px 0 0; font-size: 13.5px; color: var(--ink-soft); }
 .record-empty {
   margin: 0;
   padding: 18px 12px;

@@ -4,7 +4,7 @@
   window.KIGUBI_DATA = [
       {
       title: "终将成为你",
-      altTitles: ["やがて君になる / Bloom Into You"],
+      altTitles: ["やがて君になる","Bloom Into You"],
       author: "仲谷鳰",
       cover: "assets/covers/终将成为你.jpg",
       chapters: [
@@ -136,6 +136,7 @@
     },
       {
       title: "梦想和恋爱划算不来",
+      altTitles:["夢と恋ではつり合わない"],
       author: "とりいしづく",
       cover: "assets/covers/梦想和恋爱划算不来.jpg",
       chapters: [
@@ -211,7 +212,7 @@
         { order: 41 },
         { order: 42 },
         { order: 43,
-          kiss: [ { note:"副cp" } ],
+          kiss: [ { characters:"副cp" } ],
         },
         { order: 44 },
         { order: 45 },
@@ -334,7 +335,7 @@
     },
       {
       title: "恬淡晴天",
-      altTitles: ["徒然日和 / 平凡日常"],
+      altTitles: ["徒然日和","平凡日常"],
       author: "土室圭",
       cover: "assets/covers/恬淡晴天.jpg",
       chapters: [
@@ -367,19 +368,16 @@
     cover: "assets/covers/败给了性格恶劣的天才青梅，初体验全部被夺走这件事.jpg",
     chapters: [
         { order: 1,
-          kiss: [ 1 ],
-          tags: [ { name: "拉丝", pink: true }, { name: "舌吻" , pink: true } ]
+          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻" , pink: true } ] } ],
         },
         { order: 2,
-          kiss: [ 1 ],
-          tags: [ { name: "舌吻", pink: true } ]
+          kiss: [ { tags: [ { name: "舌吻", pink: true } ] }  ],
         },
         { order: 3,
           kiss: [ 1 ]
         },
         { order: 4,
-          kiss: [ 1 ],
-          tags: [ { name: "远景" } ]
+          kiss: [ { tags: [ { name: "远景" } ] } ],
         },
         { order: 5,
           kiss: [ 1 ]
@@ -388,17 +386,14 @@
           kiss: [ 1 ]
         },
         { order: 7,
-          kiss: [ 1 ],
-          tags: [ { name: "喂食", pink: true } ]
+          kiss: [ { tags: [ { name: "喂食", pink: true } ] } ],
         },
         { order: 8 },
         { order: 9,
-          kiss: [ 1 ],
-          tags: [ { name: "人物遮挡" } ]
+          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
         },
         { order: 10,
-          kiss: [ 1 ],
-          tags: [ { name: "舌吻", pink: true } ]
+          kiss: [ { tags: [ { name: "舌吻", pink: true } ] } ],
         },
         { order: 11,
           kiss: [ 1 ]
@@ -406,21 +401,19 @@
         { order: 12 },
         { order: 13 },
         { order: 14,
-          kiss: [ 1 ],
-          tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ]
+          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ] } ],
         },
         { order: 15,
           kiss: [ 1 ]
         },
         { order: 16,
-          kiss: [ 1 ],
-          tags: [ { name: "嘴角流血", pink: true, note: "小两口之间的情趣罢了" } ]
+          kiss: [ { tags: [ { name: "嘴角流血", pink: true, note: "小两口之间的情趣罢了" } ] } ],
         },
         { order: 17 },
         { order: 18 },
         { order: 19 },
         { order: 20,
-          kiss: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ]
+          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ] } ]
         }
       ]
     },
@@ -511,6 +504,118 @@
           title: "メロンブックスさん購入特典",
           note: "melonbooks购入特典",
           nudity: [ 1 ],
+        }
+      ]
+    },
+      {
+      title: "与你编缀的泡沫",
+      altTitles: ["君と綴るうたかた"],
+      author: "ゆあま",
+      cover: "assets/covers/与你编缀的泡沫.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16 },
+        { order: 17 },
+        { order: 18 },
+        { order: 19 },
+        { order: 20 },
+        { order: 21 },
+        { order: 22 },
+        { order: 23 },
+        { order: 24 },
+        { order: 25 },
+        { order: 26 },
+        { order: 27 },
+        { order: 28 },
+        { order: 29 },
+        { order: 30 },
+        { order: 31 },
+        { order: 32 }
+      ]
+    },
+      {
+      title: "截稿日之前百合进展神速",
+      altTitles: ["〆切前には百合が捗る"],
+      author: "平坂读 & さきだ咲紀",
+      cover: "assets/covers/截稿日之前百合进展神速.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12,
+          kiss: [ 1 ],
+        },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16,
+          kiss: [ 1 ],
+        },
+        { order: 17,
+          kiss: [ 1 ],
+        },
+        { order: 18 },
+        { order: 19 },
+        { order: 20 },
+        { order: 21 },
+        { order: 22 }
+      ]
+    },
+      {
+      title: "保健室就要二人独处",
+      altTitles: ["保健室はふたりきり", "你我独处的保健室"],
+      author: "ろここ",
+      cover: "assets/covers/保健室就要二人独处.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16 },
+        { order: 17 },
+        { order: 18 },
+        { order: 19 },
+        { order: 20 },
+        { order: 21 },
+        { order: 22 },
+        { order: 23 },
+        { order: 24 },
+        { order: 25 },
+        { order: 26,
+          kiss: [ 1 ],
         }
       ]
     }
