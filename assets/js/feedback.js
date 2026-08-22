@@ -12,8 +12,8 @@
   var modifyCurrent = [];       // [{ kiss, nudity }]
   var modifyOriginal = [];      // [{ kiss, nudity }]
   var selectedManga = null;
-  var newTagAssignments = [];      // [{ label, tag }]
-  var modifyTagAssignments = [];   // [{ label, tag }]
+  var newTagAssignments = [];      // [{ label, tag, type }]
+  var modifyTagAssignments = [];   // [{ label, tag, type }]
   var allTagNames = [];
 
   function configured() {
@@ -386,7 +386,13 @@
           showStatus("err", "请先选择要添加 tag 的章节。");
           return;
         }
-        tagAssignmentsFor(mode).push({ label: select.value, tag: name });
+
+        tagAssignmentsFor(mode).push({
+          label: select.value,
+          tag: name,
+          type: "pending"
+        });
+
         renderTagAssignList(mode);
       });
       box.appendChild(chip);
@@ -473,24 +479,50 @@
     if (!listEl) return;
 
     listEl.textContent = "";
+
     tagAssignmentsFor(mode).forEach(function (assignment, index) {
       var li = document.createElement("li");
+
       var text = document.createElement("span");
       text.textContent = "第 " + assignment.label + " 章：" + assignment.tag;
+
+      var type = document.createElement("select");
+
+      [
+        ["pending", "待分类"],
+        ["kiss", "KISS"],
+        ["nudity", "ちくび"]
+      ].forEach(function (item) {
+        var option = document.createElement("option");
+        option.value = item[0];
+        option.textContent = item[1];
+        type.appendChild(option);
+      });
+
+      type.value = assignment.type || "pending";
+
+      type.addEventListener("change", function () {
+        assignment.type = type.value;
+      });
+
       li.appendChild(text);
+      li.appendChild(type);
 
       var remove = document.createElement("button");
       remove.type = "button";
       remove.className = "tag-assign-remove";
       remove.textContent = "移除";
+
       remove.addEventListener("click", function () {
         tagAssignmentsFor(mode).splice(index, 1);
         renderTagAssignList(mode);
       });
+
       li.appendChild(remove);
       listEl.appendChild(li);
     });
   }
+
 
   /* ---------- 校验 ---------- */
 
