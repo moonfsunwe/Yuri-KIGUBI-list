@@ -759,20 +759,20 @@
     if (kissState === "unknown") {
       extras.push("kissUnknown: true");
     } else if (kissState === "has") {
-      extras.push("kiss: [ 1 ]");
+      if (tagNames.length) {
+        var tagObjects = tagNames.map(function (name) {
+          return "{ name: " + jsString(name) + " }";
+        });
+        extras.push("kiss: [ { tags: [ " + tagObjects.join(", ") + " ] } ]");
+      } else {
+        extras.push("kiss: [ 1 ]");
+      }
     }
 
     if (nudityState === "unknown") {
       extras.push("nudityUnknown: true");
     } else if (nudityState === "has") {
       extras.push("nudity: [ 1 ]");
-    }
-
-    if (tagNames.length) {
-      var tagObjects = tagNames.map(function (name) {
-        return "{ name: " + jsString(name) + " }";
-      });
-      extras.push("tags: [ " + tagObjects.join(", ") + " ]");
     }
 
     if (!extras.length) {
