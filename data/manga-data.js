@@ -571,10 +571,10 @@
         { order: 14 },
         { order: 15 },
         { order: 16,
-          kiss: [ { tags: { name: "人物遮挡" } } ],
+          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
         },
         { order: 17,
-          kiss: [ { tags: { name: "人物遮挡" } } ],
+          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
         },
         { order: 18 },
         { order: 19 },
@@ -615,7 +615,7 @@
         { order: 24 },
         { order: 25 },
         { order: 26,
-          kiss: [ { tags: { name: "喂饮" } } ],
+          kiss: [ { tags: [ { name: "喂饮", pink: true } ] } ],
         }
       ]
     },
