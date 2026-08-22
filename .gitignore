@@ -24,6 +24,8 @@ Thumbs.db
 # Secrets
 .env
 
+admin.html
+
 manga-data-fields.txt
 
 data-gen.py

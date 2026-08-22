@@ -627,7 +627,7 @@
       });
     }
 
-    /*var copy = A.qs("#issueCopy");
+    var copy = A.qs("#issueCopy");
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
@@ -639,7 +639,7 @@
       } else {
         fallbackCopy(text);
       }
-    });*/
+    });
   }
 
   function fallbackCopy(text) {
