@@ -232,6 +232,7 @@
       altTitles: ["ロンリーガールに逆らえない"],
       author: "樫風",
       cover: "assets/covers/无法拒绝孤独的她.jpg",
+      description: "为什么全是问号？因为太长了维护者目前还没整理，只记得亲吻很多以及没有ちぐび，欢迎您提供相关信息。",
       chapters: [
         { order: 1,
           kiss: [ 1 ],
