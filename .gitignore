@@ -25,3 +25,5 @@ Thumbs.db
 .env
 
 manga-data-fields.txt
+
+data-gen.py
