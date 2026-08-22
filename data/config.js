@@ -12,17 +12,6 @@
       "本站部分条目涉及成人向的ちくび信息记录，不展示任何对应图片。请在确认自己已成年、且所在地允许访问此类信息后继续浏览。",
 
     feedback: {
-      /**
-       * 数据提交后端三选一：
-       *  - "githubIssue"：把表单整理为 GitHub Issue URL，访客确认后打开
-       *    GitHub 新 Issue 页面提交（不暴露任何 Token，安全性最好）。
-       *    需要先把仓库地址填到 githubIssueRepo，并在仓库中建好
-       *    submission / pending / approved 三个标签。
-       *  - "web3forms"：访问 https://web3forms.com 用邮箱领取 Access Key，
-       *    适合邮箱接收投稿。
-       *  - "formspree"：访问 https://formspree.io 创建表单，
-       *    把返回的 https://formspree.io/f/xxxx 填入 formspreeEndpoint。
-       */
       enabled: true,
       backend: "githubIssue",
 
@@ -34,7 +23,7 @@
 
       // 「前往百合会提交」按钮要打开的 Discuz! 发帖基础地址；
       // 点击按钮时会自动在 URL 后追加 subject/message 预填（action=reply 时只追加 message）。
-      lilySubmitUrl: "https://bbs.yamibo.com/forum.php?mod=post&action=reply&fid=33&tid=567394"
+      lilySubmitUrl: "https://bbs.yamibo.com/forum.php?mod=post&action=reply&fid=19&tid=574144&fromuid=705003"
     },
 
     // 你的仓库地址，用于页脚“审核流程”链接（可选）
