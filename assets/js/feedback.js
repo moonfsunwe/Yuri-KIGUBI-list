@@ -61,6 +61,10 @@
     fillTagDatalists();
     bindTagAssignment("new");
     bindTagAssignment("modify");
+
+    bindTagChapterWheel("new");
+    bindTagChapterWheel("modify");
+
     renderNewChapterCells();
 
     var params = new URLSearchParams(window.location.search);
@@ -404,6 +408,32 @@
       });
     }
   }
+
+  function bindTagChapterWheel(mode) {
+  var select = A.qs("#" + mode + "TagChapter");
+  if (!select) return;
+
+  select.addEventListener("wheel", function (event) {
+    event.preventDefault();
+
+    var index = select.selectedIndex;
+
+    if (event.deltaY > 0) {
+      // 向下滚轮 → 下一章
+      if (index < select.options.length - 1) {
+        select.selectedIndex = index + 1;
+      }
+    } else {
+      // 向上滚轮 → 上一章
+      if (index > 0) {
+        select.selectedIndex = index - 1;
+      }
+    }
+
+    // 通知现有逻辑章节发生变化
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
 
   function addTagAssignment(mode) {
     var select = A.qs("#" + mode + "TagChapter");

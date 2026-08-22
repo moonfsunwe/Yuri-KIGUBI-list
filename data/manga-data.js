@@ -359,6 +359,70 @@
         },
         { order: 18 }
       ]
+    },
+      {
+    title: "败给了性格恶劣的天才青梅，初体验全部被夺走这件事",
+    altTitles: ["性悪天才幼馴染との勝負に負けて初体験を全部奪われる話"],
+    author: "コナタエル & 犬甘あんず",
+    cover: "assets/covers/败给了性格恶劣的天才青梅，初体验全部被夺走这件事.jpg",
+    chapters: [
+        { order: 1,
+          kiss: [ 1 ],
+          tags: [ { name: "拉丝", pink: true }, { name: "舌吻" , pink: true } ]
+        },
+        { order: 2,
+          kiss: [ 1 ],
+          tags: [ { name: "舌吻", pink: true } ]
+        },
+        { order: 3,
+          kiss: [ 1 ]
+        },
+        { order: 4,
+          kiss: [ 1 ],
+          tags: [ { name: "远景" } ]
+        },
+        { order: 5,
+          kiss: [ 1 ]
+        },
+        { order: 6,
+          kiss: [ 1 ]
+        },
+        { order: 7,
+          kiss: [ 1 ],
+          tags: [ { name: "喂食", pink: true } ]
+        },
+        { order: 8 },
+        { order: 9,
+          kiss: [ 1 ],
+          tags: [ { name: "人物遮挡" } ]
+        },
+        { order: 10,
+          kiss: [ 1 ],
+          tags: [ { name: "舌吻", pink: true } ]
+        },
+        { order: 11,
+          kiss: [ 1 ]
+        },
+        { order: 12 },
+        { order: 13 },
+        { order: 14,
+          kiss: [ 1 ],
+          tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ]
+        },
+        { order: 15,
+          kiss: [ 1 ]
+        },
+        { order: 16,
+          kiss: [ 1 ],
+          tags: [ { name: "嘴角流血", pink: true, note: "小两口之间的情趣罢了" } ]
+        },
+        { order: 17 },
+        { order: 18 },
+        { order: 19 },
+        { order: 20,
+          kiss: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ]
+        }
+      ]
     }
   ];
 })();
