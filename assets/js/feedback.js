@@ -829,7 +829,7 @@
       // 修改已有漫画的正文已经自带 [collapse=...] 包装
       text = body;
     } else {
-      text = "[collapse=0," + title + "][code]" + body + "\n[/code][/collapse]";
+      text = "[collapse=0," + title + "]\n[code]" + body + "\n[/code]\n[/collapse]";
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -884,7 +884,7 @@
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
-      var text = "[collapse=0] [code]" + bodyPreview.value + "[/code] [/collapse]";
+      var text = "[collapse=0]\n[code]" + bodyPreview.value + "[/code]\n[/collapse]";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");
