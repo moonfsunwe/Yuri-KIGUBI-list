@@ -798,6 +798,10 @@
     }*/
     return body;
   }
+  
+  function indentBody(body) {
+    return body.replace(/\n/g, "\n    ");
+  }
 
   function buildIssueUrl() {
     var repo = FB.githubIssueRepo.replace(/\/+$/, "").replace(/^\/+/, "");
@@ -805,7 +809,7 @@
     var url = "https://github.com/" + repo + "/issues/new";
     var params = new URLSearchParams();
     params.set("title", buildIssueTitle());
-    params.set("body", issueBodyForUrl());
+    params.set("body", indentBody(issueBodyForUrl()));
     if (labels.length) params.set("labels", labels.join(","));
     return url + "?" + params.toString();
   }
@@ -823,7 +827,7 @@
 
   function openLilySubmit() {
     var title = buildIssueTitle();
-    var body = issueBodyForUrl();
+    var body = indentBody(issueBodyForUrl());
     var text;
     if (/^\[collapse=/.test(body)) {
       // 修改已有漫画的正文已经自带 [collapse=...] 包装
@@ -884,7 +888,8 @@
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
-      var text = "[collapse=0]\n[code]" + bodyPreview.value + "[/code]\n[/collapse]";
+      var body = indentBody(bodyPreview.value);
+      var text = "[collapse=0]\n[code]" + body + "[/code]\n[/collapse]";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");
