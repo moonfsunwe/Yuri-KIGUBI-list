@@ -884,7 +884,7 @@
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
-      var text = "[collapse=0][code]" + bodyPreview.value + "[/code][/collapse=0]";
+      var text = "[collapse=0] [code]" + bodyPreview.value + "[/code] [/collapse]";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");
