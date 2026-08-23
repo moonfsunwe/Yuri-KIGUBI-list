@@ -858,9 +858,6 @@
       if (lilyOpen) lilyOpen.href = "#";
       showStatus("err", "内容已复制。");
     }
-
-    var modal = A.qs("#issueModal");
-    if (modal) modal.hidden = true;
   }
 
   function bindIssueModal() {
@@ -872,7 +869,6 @@
 
     var openLink = A.qs("#issueOpen");
     if (openLink) openLink.addEventListener("click", function () {
-      modal.hidden = true;
       showStatus("ok", "已打开 GitHub Issue 页面，请在页面中确认并点击 Submit new issue。");
     });
 
