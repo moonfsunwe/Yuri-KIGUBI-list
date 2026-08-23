@@ -64,6 +64,8 @@
 
     bindTagChapterWheel("new");
     bindTagChapterWheel("modify");
+    bindBatchChapterControls("new");
+    bindBatchChapterControls("modify");
 
     renderNewChapterCells();
 
@@ -173,6 +175,7 @@
       }
     });
 
+    refreshBatchChapterControls("new");
     refreshTagAssignUI("new");
   }
 
@@ -305,6 +308,7 @@
     });
     container.appendChild(add);
 
+    refreshBatchChapterControls("modify");
     refreshTagAssignUI("modify");
   }
 
@@ -344,6 +348,259 @@
     cell.appendChild(hitNudity);
 
     return cell;
+  }
+
+  /* ---------- 批量设置章节状态 ---------- */
+
+  function batchChapterStatesFor(mode) {
+    return mode === "new" ? newChapterStates : modifyCurrent;
+  }
+
+  function batchChapterRangeOptions(mode) {
+    var states = batchChapterStatesFor(mode);
+    return states.map(function (state) {
+      return String(state.label);
+    });
+  }
+
+  function bindBatchChapterControls(mode) {
+    var container = A.qs("#" + mode + "ChapterCells");
+    if (!container || container.parentNode.querySelector(".batch-chapter-controls-" + mode)) {
+      return;
+    }
+
+    var box = document.createElement("div");
+    box.className = "batch-chapter-controls batch-chapter-controls-" + mode;
+
+    var title = document.createElement("div");
+    title.className = "batch-chapter-title";
+    title.textContent = "批量设置章节";
+    box.appendChild(title);
+
+    var rangeRow = document.createElement("div");
+    rangeRow.className = "batch-chapter-range";
+
+    var fromLabel = document.createElement("span");
+    fromLabel.textContent = "从";
+    rangeRow.appendChild(fromLabel);
+
+    var fromSelect = document.createElement("select");
+    fromSelect.className = "select batch-chapter-from";
+    fromSelect.setAttribute("aria-label", "批量设置起始章节");
+    rangeRow.appendChild(fromSelect);
+
+    var toLabel = document.createElement("span");
+    toLabel.textContent = "至";
+    rangeRow.appendChild(toLabel);
+
+    var toSelect = document.createElement("select");
+    toSelect.className = "select batch-chapter-to";
+    toSelect.setAttribute("aria-label", "批量设置结束章节");
+    rangeRow.appendChild(toSelect);
+
+    var chapterLabel = document.createElement("span");
+    chapterLabel.textContent = "章";
+    rangeRow.appendChild(chapterLabel);
+
+    box.appendChild(rangeRow);
+
+    bindBatchSelectWheel(fromSelect);
+    bindBatchSelectWheel(toSelect);
+
+
+    var kissRow = document.createElement("div");
+    kissRow.className = "batch-chapter-actions";
+
+    var kissTitle = document.createElement("span");
+    kissTitle.className = "batch-chapter-action-label";
+    kissTitle.textContent = "亲吻";
+    kissRow.appendChild(kissTitle);
+
+    addBatchButton(kissRow, "有", function () {
+      applyBatchChapterState(mode, "kiss", "has");
+    });
+
+    addBatchButton(kissRow, "无", function () {
+      applyBatchChapterState(mode, "kiss", "none");
+    });
+
+    if (mode === "new") {
+      addBatchButton(kissRow, "未知", function () {
+        applyBatchChapterState(mode, "kiss", "unknown");
+      });
+    }
+
+    box.appendChild(kissRow);
+
+    var nudityRow = document.createElement("div");
+    nudityRow.className = "batch-chapter-actions";
+
+    var nudityTitle = document.createElement("span");
+    nudityTitle.className = "batch-chapter-action-label";
+    nudityTitle.textContent = "ちくび";
+    nudityRow.appendChild(nudityTitle);
+
+    addBatchButton(nudityRow, "有", function () {
+      applyBatchChapterState(mode, "nudity", "has");
+    });
+
+    addBatchButton(nudityRow, "无", function () {
+      applyBatchChapterState(mode, "nudity", "none");
+    });
+
+    if (mode === "new") {
+      addBatchButton(nudityRow, "未知", function () {
+        applyBatchChapterState(mode, "nudity", "unknown");
+      });
+    }
+
+    box.appendChild(nudityRow);
+
+    container.parentNode.insertBefore(box, container);
+
+    refreshBatchChapterControls(mode);
+  }
+
+  function bindBatchSelectWheel(select) {
+    if (!select) return;
+
+    select.addEventListener("wheel", function (event) {
+      event.preventDefault();
+
+      var index = select.selectedIndex;
+
+      if (event.deltaY > 0) {
+        // 向下滚轮 → 下一章
+        if (index < select.options.length - 1) {
+          select.selectedIndex = index + 1;
+        }
+      } else {
+        // 向上滚轮 → 上一章
+        if (index > 0) {
+          select.selectedIndex = index - 1;
+        }
+      }
+    }, { passive: false });
+  }
+
+  function addBatchButton(parent, text, handler) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn-ghost batch-chapter-button";
+    button.textContent = text;
+    button.addEventListener("click", handler);
+    parent.appendChild(button);
+  }
+
+  function refreshBatchChapterControls(mode) {
+    var controls = document.querySelector(".batch-chapter-controls-" + mode);
+    if (!controls) return;
+
+    var fromSelect = controls.querySelector(".batch-chapter-from");
+    var toSelect = controls.querySelector(".batch-chapter-to");
+
+    if (!fromSelect || !toSelect) return;
+
+    var labels = batchChapterRangeOptions(mode);
+    var oldFrom = fromSelect.value;
+    var oldTo = toSelect.value;
+
+    fromSelect.textContent = "";
+    toSelect.textContent = "";
+
+    labels.forEach(function (label) {
+      var fromOption = document.createElement("option");
+      fromOption.value = label;
+      fromOption.textContent = label;
+      fromSelect.appendChild(fromOption);
+
+      var toOption = document.createElement("option");
+      toOption.value = label;
+      toOption.textContent = label;
+      toSelect.appendChild(toOption);
+    });
+
+    if (!labels.length) return;
+
+    if (labels.indexOf(oldFrom) !== -1) {
+      fromSelect.value = oldFrom;
+    } else {
+      fromSelect.selectedIndex = 0;
+    }
+
+    if (labels.indexOf(oldTo) !== -1) {
+      toSelect.value = oldTo;
+    } else {
+      toSelect.selectedIndex = labels.length - 1;
+    }
+  }
+
+  function applyBatchChapterState(mode, half, stateValue) {
+    var states = batchChapterStatesFor(mode);
+    var controls = document.querySelector(".batch-chapter-controls-" + mode);
+
+    if (!controls || !states.length) {
+      showStatus("err", "当前没有可设置的章节。");
+      return;
+    }
+
+    var fromSelect = controls.querySelector(".batch-chapter-from");
+    var toSelect = controls.querySelector(".batch-chapter-to");
+
+    if (!fromSelect || !toSelect) return;
+
+    var fromLabel = fromSelect.value;
+    var toLabel = toSelect.value;
+
+    var fromIndex = states.findIndex(function (state) {
+      return String(state.label) === String(fromLabel);
+    });
+
+    var toIndex = states.findIndex(function (state) {
+      return String(state.label) === String(toLabel);
+    });
+
+    if (fromIndex === -1 || toIndex === -1) {
+      showStatus("err", "请选择有效的章节范围。");
+      return;
+    }
+
+    if (fromIndex > toIndex) {
+      var temp = fromIndex;
+      fromIndex = toIndex;
+      toIndex = temp;
+    }
+
+    var count = 0;
+
+    for (var i = fromIndex; i <= toIndex; i++) {
+      states[i][half] = stateValue;
+      count++;
+    }
+
+    if (mode === "new") {
+      renderNewChapterCells();
+    } else {
+      renderModifyCells();
+    }
+
+    var halfName = half === "kiss" ? "亲吻" : "ちくび";
+    var stateName = stateLabel(stateValue);
+
+    showStatus(
+      "ok",
+      "已将第 " +
+        states[fromIndex].label +
+        "～" +
+        states[toIndex].label +
+        " 章的" +
+        halfName +
+        "设置为“" +
+        stateName +
+        "”（共 " +
+        count +
+        " 章）。"
+    );
   }
 
   /* ---------- 章节 tag 分配 ---------- */
@@ -536,9 +793,9 @@
 
   function issueBodyForUrl() {
     var body = buildMessage().replace(/\r\n/g, "\n").trim();
-    if (body.length > 12000) {
-      body = "\n\n（内容过长已截断，其余章节状态请通过自行复制补充。）" + body.slice(0, 12000);
-    }
+    /*if (body.length > 30000) {
+      body = "\n\n（内容过长已截断，其余章节状态请通过自行复制补充。）" + body.slice(0, 30000);
+    }*/
     return body;
   }
 
@@ -631,7 +888,7 @@
     if (copy) copy.addEventListener("click", function () {
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
-      var text = "[collapse=0]" + bodyPreview.value + "[/collapse=0]";
+      var text = "[collapse=0][code]" + bodyPreview.value + "[/code][/collapse=0]";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");

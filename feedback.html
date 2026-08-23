@@ -170,9 +170,10 @@
             点击下方按钮将打开 GitHub Issue 页面或百合会页面<br>
             带有预填功能 <strong>无需自行复制内容</strong>。
           </p>
-          <label for="issueBodyPreview" class="field-label">将提交的内容</label>
+          <label for="issueBodyPreview" class="field-label">将提交的内容（内容过长可能导致无法打开url，此时需要自行复制）</label>
           <textarea class="textarea" id="issueBodyPreview" readonly style="height:200px; margin-top:6px;"></textarea>
           <div class="modal-actions">
+            <button type="button" class="btn-ghost" id="issueCopy">复制内容</button>
             <button type="button" class="btn-ghost" id="issueCancel">返回修改</button>
             <a class="btn-primary" id="issueOpen" href="#" target="_blank" rel="noopener">前往 GitHub 提交 Issue</a>
             <a class="btn-primary" id="lilyOpen" href="#" target="_blank" rel="noopener">前往百合会提交</a>
