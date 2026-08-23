@@ -536,8 +536,8 @@
 
   function issueBodyForUrl() {
     var body = buildMessage().replace(/\r\n/g, "\n").trim();
-    if (body.length > 3600) {
-      body = body.slice(0, 3600) + "\n\n（内容过长已截断，其余章节状态请在 GitHub Issue 中补充。）";
+    if (body.length > 12000) {
+      body = "\n\n（内容过长已截断，其余章节状态请通过自行复制补充。）" + body.slice(0, 12000);
     }
     return body;
   }

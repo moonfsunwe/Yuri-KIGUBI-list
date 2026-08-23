@@ -511,7 +511,7 @@
       title: "与你编缀的泡沫",
       altTitles: ["君と綴るうたかた"],
       author: "ゆあま",
-      cover: "assets/covers/与你编缀的泡沫.jpg",
+      cover: "assets/covers/与你编缀的泡沫.png",
       chapters: [
         { order: 1 },
         { order: 2 },
