@@ -255,13 +255,15 @@
       : "本话暂无ちくび记录。");
   }
 
+  var PINK_TAGS = ["舌吻", "拉丝", "喂食", "喂饮", "嘴角流血"];
+
   function normalizeTag(tag) {
-    if (typeof tag === "string") return { name: tag, note: "", pink: false };
+    if (typeof tag === "string") return { name: tag, note: "", pink: PINK_TAGS.indexOf(tag) !== -1 };
     if (tag && tag.name) {
       return {
         name: String(tag.name),
         note: tag.note ? String(tag.note) : "",
-        pink: tag.pink === true || tag.pink === 1 || tag.tone === "pink"
+        pink: tag.pink === true || tag.pink === 1 || tag.tone === "pink" || PINK_TAGS.indexOf(tag.name) !== -1
       };
     }
     return null;
@@ -277,7 +279,7 @@
 
       var chip = makeEl("span", "detail-tag", tag.name);
 
-      if (tag.pink || tag.note) {
+      if (tag.pink) {
         chip.classList.add("pink");
       }
 

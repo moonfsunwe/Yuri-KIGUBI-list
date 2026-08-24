@@ -805,12 +805,12 @@
 
   function buildIssueUrl() {
     var repo = FB.githubIssueRepo.replace(/\/+$/, "").replace(/^\/+/, "");
-    var labels = (FB.githubIssueLabels || []).slice();
+    /*var labels = (FB.githubIssueLabels || []).slice();*/
     var url = "https://github.com/" + repo + "/issues/new";
     var params = new URLSearchParams();
     params.set("title", buildIssueTitle());
-    params.set("body", indentBody(issueBodyForUrl()));
-    if (labels.length) params.set("labels", labels.join(","));
+    params.set("body", "<!-- KIGUBI-SUBMISSION -->\n```text\n" + indentBody(issueBodyForUrl()) + "\n```");
+    /*if (labels.length) params.set("labels", labels.join(","));*/
     return url + "?" + params.toString();
   }
 
@@ -889,7 +889,7 @@
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
       var body = indentBody(bodyPreview.value);
-      var text = "[collapse=0]\n[code]" + body + "[/code]\n[/collapse]";
+      var text = "```\n[collapse=0]\n[code]" + body + "[/code]\n[/collapse]\n```";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");

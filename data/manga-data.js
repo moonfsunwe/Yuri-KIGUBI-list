@@ -32,7 +32,7 @@
           kiss: [ { characters: "灯子 x 侑", } ],
         },
         { order: 16,
-          kiss: [ { characters: "灯子 x 侑", tags: [ { name: "舌吻", pink: true } ] } ],
+          kiss: [ { characters: "灯子 x 侑", tags: [ { name: "舌吻" } ] } ] ,
         },
         { order: 17 },
         { order: 18 },
@@ -91,7 +91,7 @@
         },
         { order: 5 },
         { order: 6,
-          kiss: [ { tags: [ { name: "舌吻", pink:true}, { name: "拉丝" , pink:true } ] } ],
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝"} ] } ],
         },
         { order: 7,
           note: "无上色：仅画出形状",
@@ -104,10 +104,10 @@
         { order: 9 },
         { order: 10 },
         { order: 11,
-          kiss: [ { tags: [ { name: "舌吻", pink:true}, { name: "拉丝" , pink:true } ] } ],
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝"} ] } ],
         },
         { order: 12,
-          kiss: [ { tags: [ { name: "舌吻", pink:true}, { name: "拉丝" , pink:true } ] } ],
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝"} ] } ],
           nudity: [ 1 ],
         },
         { order: 13 },
@@ -156,7 +156,7 @@
         },
         { order: 7 },
         { order: 8,
-          kiss: [ { tags: [ { name: "舌吻", pink:true } ] } ],
+          kiss: [ { tags: [ { name: "舌吻"  } ] } ],
         },
         { order: 8.5,
           kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
@@ -368,10 +368,10 @@
     cover: "assets/covers/败给了性格恶劣的天才青梅，初体验全部被夺走这件事.jpg",
     chapters: [
         { order: 1,
-          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻" , pink: true } ] } ],
+          kiss: [ { tags: [ { name: "拉丝"}, { name: "舌吻" } ] } ],
         },
         { order: 2,
-          kiss: [ { tags: [ { name: "舌吻", pink: true } ] }  ],
+          kiss: [ { tags: [ { name: "舌吻"} ] }  ],
         },
         { order: 3,
           kiss: [ 1 ]
@@ -386,14 +386,14 @@
           kiss: [ 1 ]
         },
         { order: 7,
-          kiss: [ { tags: [ { name: "喂食", pink: true } ] } ],
+          kiss: [ { tags: [ { name: "喂食"} ] } ],
         },
         { order: 8 },
         { order: 9,
           kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
         },
         { order: 10,
-          kiss: [ { tags: [ { name: "舌吻", pink: true } ] } ],
+          kiss: [ { tags: [ { name: "舌吻"} ] } ],
         },
         { order: 11,
           kiss: [ 1 ]
@@ -401,19 +401,19 @@
         { order: 12 },
         { order: 13 },
         { order: 14,
-          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ] } ],
+          kiss: [ { tags: [ { name: "拉丝"}, { name: "舌吻"} ] } ],
         },
         { order: 15,
           kiss: [ 1 ]
         },
         { order: 16,
-          kiss: [ { tags: [ { name: "嘴角流血", pink: true, note: "小两口之间的情趣罢了" } ] } ],
+          kiss: [ { tags: [ { name: "嘴角流血", note: "小两口之间的情趣罢了" } ] } ],
         },
         { order: 17 },
         { order: 18 },
         { order: 19 },
         { order: 20,
-          kiss: [ { tags: [ { name: "拉丝", pink: true }, { name: "舌吻", pink: true } ] } ]
+          kiss: [ { tags: [ { name: "拉丝"}, { name: "舌吻"} ] } ]
         }
       ]
     },
@@ -615,7 +615,7 @@
         { order: 24 },
         { order: 25 },
         { order: 26,
-          kiss: [ { tags: [ { name: "喂饮", pink: true } ] } ],
+          kiss: [ { tags: [ { name: "喂饮"} ] } ],
         }
       ]
     },
@@ -763,7 +763,63 @@
           nudityUnknown: true
         }
       ]
-    }
-
+    },
+    {
+      title: "也无风雨也无晴",
+      altTitles: ["雨でも晴れでも", "雨晴皆往"],
+      author: "あらた伊里",
+      cover: "assets/covers/也无风雨也无晴.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7,
+          kiss: [ 1 ]
+        },
+        { order: 8,
+          kiss: [ 1 ]
+        },
+        { order: 9 },
+        { order: 10 },
+        { order: 11,
+          kiss: [ 1 ]
+        },
+        { order: 12,
+          kiss: [ 1 ]
+        },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16 },
+        { order: 17,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 18 },
+        { order: 19,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ],
+          nudity: [ { characters: "单行本加页内容" } ]
+        }
+      ]
+    },
+    {
+      title: "在飘摇的恋情消散之际",
+      altTitles: ["たゆたう恋の散り际に", "飘摇恋心凋落时"],
+      author: "ゆあま",
+      status: "连载中",
+      cover: "assets/covers/在飘摇的恋情消散之际.jpg",
+      chapters: [
+      { order: 1 },
+      { order: 2 },
+      { order: 3 },
+      { order: 4,
+      kiss: [ { tags: [ { name: "舌吻" } ] } ]
+      },
+      { order: 5 },
+      { order: 6 }
+      ]
+      }
   ];
 })();
