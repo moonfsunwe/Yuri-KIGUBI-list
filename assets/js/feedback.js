@@ -998,6 +998,10 @@
     if (author) {
       lines.push("  author: " + jsString(author) + ",");
     }
+    var status = A.qs("#fbkNewStatus").value.trim();
+    if (status) {
+      lines.push("  status: " + jsString(status) + ",");
+    }
     lines.push("  cover: " + jsString("assets/covers/" + title + ".jpg") + ",");
     lines.push("  chapters: [");
     chapters.forEach(function (chapter, index) {

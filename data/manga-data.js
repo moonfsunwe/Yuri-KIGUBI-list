@@ -799,27 +799,28 @@
         },
         { order: 18 },
         { order: 19,
-          kiss: [ { tags: [ { name: "舌吻" } ] } ],
+          note: "ちぐび：单行本加页内容",
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝" } ] } ],
           nudity: [ { characters: "单行本加页内容" } ]
         }
       ]
     },
-    {
-      title: "在飘摇的恋情消散之际",
-      altTitles: ["たゆたう恋の散り际に", "飘摇恋心凋落时"],
-      author: "ゆあま",
-      status: "连载中",
-      cover: "assets/covers/在飘摇的恋情消散之际.jpg",
-      chapters: [
-      { order: 1 },
-      { order: 2 },
-      { order: 3 },
-      { order: 4,
-      kiss: [ { tags: [ { name: "舌吻" } ] } ]
-      },
-      { order: 5 },
-      { order: 6 }
+      {
+        title: "在飘摇的恋情消散之际",
+        altTitles: ["たゆたう恋の散り际に", "飘摇恋心凋落时"],
+        author: "ゆあま",
+        status: "连载中",
+        cover: "assets/covers/在飘摇的恋情消散之际.jpg",
+        chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 5 },
+        { order: 6 }
       ]
-      }
+    }
   ];
 })();
