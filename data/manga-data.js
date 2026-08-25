@@ -626,11 +626,12 @@
       cover: "assets/covers/初恋，心跳，小薄本.jpg",
       chapters: [
         { order: 0,
+          note: "于電撃おとなの萌王 Vol.07 刊登的连载前的 oneshot",
           title: "于電撃おとなの萌王 Vol.07 刊登的连载前的 oneshot",
           nudity: [ 1 ]
         },
         { order: 1,
-          note: "虽然没有ちぐび但是提灯喵汉化版本有和谐",
+          note: "虽然没有ちぐび但是提灯喵汉化版本存在和谐，需要观看生肉或英肉",
         },
         { order: 2,
           kiss: [ { characters: "本子封面" } ],
@@ -827,7 +828,7 @@
       title: "女孩们×吸血鬼",
       author: "みかみてれん & 千種みのり",
       status: "连载中",
-      cover: "assets/covers/女孩们×吸血鬼.jpg",
+      cover: "assets/covers/女孩们×吸血鬼.png",
       altTitles: ["ガールズ×ヴァンパイア"],
       chapters: [
         { order: 1 },
