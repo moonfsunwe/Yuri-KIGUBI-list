@@ -135,11 +135,6 @@
             </div>
             <ul class="tag-assign-list" id="modifyTagAssignList"></ul>
           </div>
-
-          <div class="field">
-            <label for="fbkModifyReason">修改原因<span class="field-hint">必填</span></label>
-            <textarea class="textarea" id="fbkModifyReason" name="modifyReason" placeholder="在此处补充更改理由与其他信息"></textarea>
-          </div>
         </section>
 
         <div class="tags-notes">
@@ -152,6 +147,19 @@
             <li>无上色：ちぐび专用tag，只画出凸起的形状，需要与单纯的没画作出区分</li>
             <li>衣物：ちぐび专用tag，透过衣物</li>
           </ul>
+        </div>
+
+        <div class="field">
+          <label for="fbkExtraNote" class="extra-note-label">
+            补充说明
+            <span class="field-hint">选填</span>
+          </label>
+
+          <textarea
+            class="textarea"
+            id="fbkExtraNote"
+            name="extraNote"
+            placeholder="不对 kiss 次数进行统计，但一个章节包括不同角色的 kiss 则可以补充说明&#10;其他场合可以自行决定是否详细描述，如福利回但是没有ちぐび&#10;您的描述视情况将被放入“详细模式”中"></textarea>
         </div>
 
         <!-- <label class="check-row">
@@ -170,9 +178,9 @@
           <h2 id="issueModalTitle" style="margin:0 0 8px; font-family:var(--font-display);">确认投稿内容</h2>
           <p class="modal-hint">
             点击下方按钮将打开 GitHub Issue 页面或百合会页面<br>
-            带有预填功能 <strong>无需自行复制内容</strong>。
+            带有预填功能 <strong>内容过长可能导致无法打开url，此时需要自行复制</strong>。
           </p>
-          <label for="issueBodyPreview" class="field-label">将提交的内容（内容过长可能导致无法打开url，此时需要自行复制）</label>
+          <label for="issueBodyPreview" class="field-label">将提交的代码（不包括补充说明，详情请于对应网站确认）</label>
           <textarea class="textarea" id="issueBodyPreview" readonly style="height:200px; margin-top:6px;"></textarea>
           <div class="modal-actions">
             <button type="button" class="btn-ghost" id="issueCopy">复制内容</button>

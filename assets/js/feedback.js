@@ -770,10 +770,11 @@
   }
 
   function validateModify() {
-    var select = A.qs("#fbkModifyManga");
-    var reason = A.qs("#fbkModifyReason").value.trim();
-    if (!select || !select.value || !selectedManga) { showStatus("err", "请搜索并选择要修改的漫画。"); return false; }
-    if (!reason) { showStatus("err", "修改已有漫画必须注明原因。"); return false; }
+    if (!selectedManga) {
+      showStatus("err", "请搜索并选择要修改的漫画。");
+      return false;
+    }
+
     return true;
   }
 
@@ -805,12 +806,28 @@
 
   function buildIssueUrl() {
     var repo = FB.githubIssueRepo.replace(/\/+$/, "").replace(/^\/+/, "");
-    /*var labels = (FB.githubIssueLabels || []).slice();*/
     var url = "https://github.com/" + repo + "/issues/new";
     var params = new URLSearchParams();
+
     params.set("title", buildIssueTitle());
-    params.set("body", "<!-- KIGUBI-SUBMISSION -->\n```text\n" + indentBody(issueBodyForUrl()) + "\n```");
-    /*if (labels.length) params.set("labels", labels.join(","));*/
+
+    var body = issueBodyForUrl();
+
+    var extraNote = A.qs("#fbkExtraNote");
+    var reason = extraNote ? extraNote.value.trim() : "";
+
+    // 补充说明放在 GitHub 代码块外面
+    var githubBody = "<!-- KIGUBI-SUBMISSION -->\n";
+
+    if (reason) {
+      githubBody += "补充说明：" + reason + "\n";
+      body = body.replace("补充说明：" + reason + "\n", "");
+    }
+
+    githubBody += "```\n" + indentBody(body) + "\n```";
+
+    params.set("body", githubBody);
+
     return url + "?" + params.toString();
   }
 
@@ -828,13 +845,15 @@
   function openLilySubmit() {
     var title = buildIssueTitle();
     var body = indentBody(issueBodyForUrl());
-    var text;
-    if (/^\[collapse=/.test(body)) {
-      // 修改已有漫画的正文已经自带 [collapse=...] 包装
-      text = body;
-    } else {
-      text = "[collapse=0," + title + "]\n[code]" + body + "\n[/code]\n[/collapse]";
+    var extraNoteEl = A.qs("#fbkExtraNote");
+    var extraNote = extraNoteEl ? extraNoteEl.value.trim() : "";
+    var text = "[collapse=0," + title + "]\n";
+    
+    if (extraNote) {
+      text += "补充说明：" + extraNote + "\n";
     }
+
+    text += "[code]" + body + "\n[/code]\n[/collapse]";
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch(function () {
@@ -889,7 +908,17 @@
       var bodyPreview = A.qs("#issueBodyPreview");
       if (!bodyPreview) return;
       var body = indentBody(bodyPreview.value);
-      var text = "```\n[collapse=0]\n[code]" + body + "[/code]\n[/collapse]\n```";
+
+      var extraNote = A.qs("#fbkExtraNote");
+      var reason = extraNote ? extraNote.value.trim() : "";
+
+      var text = "```\n[collapse=0]\n";
+
+      if (reason) {
+        text += "补充说明：" + reason + "\n";
+      }
+
+      text += "[code]" + body + "[/code]\n[/collapse]\n```";
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
           showStatus("ok", "内容已复制。");
@@ -918,9 +947,7 @@
     }
 
     if (mode === "modify" && selectedManga) {
-      var reason = A.qs("#fbkModifyReason").value.trim();
-      var jsBody = buildModifyMangaBody();
-      return "[collapse=0," + buildIssueTitle() + "]\n修改原因：" + reason + "\n[code]\n" + jsBody + "\n[/code]\n[/collapse]";
+      return buildModifyMangaBody();
     }
 
     return "";
@@ -1076,7 +1103,6 @@
       fd.append("chapter_count", String(newBaseCount));
     } else if (selectedManga) {
       fd.append("manga_title", selectedManga.title);
-      fd.append("modify_reason", A.qs("#fbkModifyReason").value.trim());
     }
 
     fd.append("from_name", "匿名投稿");

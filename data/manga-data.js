@@ -736,34 +736,13 @@
         { order: 50 },
         { order: 51 },
         { order: 52 },
-        { order: 53,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 54,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 55,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 56,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 57,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 58,
-          kissUnknown: true,
-          nudityUnknown: true
-        },
-        { order: 59,
-          kissUnknown: true,
-          nudityUnknown: true
-        }
+        { order: 53 },
+        { order: 54 },
+        { order: 55 },
+        { order: 56 },
+        { order: 57 },
+        { order: 58 },
+        { order: 59 }
       ]
     },
     {
@@ -879,6 +858,89 @@
         { order: 37 },
         { order: 38,
           kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        }
+      ]
+    },
+    {
+      title: "与你一起的未知的夏天",
+      altTitles: ["君としらない夏になる","与你迎接未知的夏日"],
+      author: "きいやん",
+      cover: "assets/covers/与你一起的未知的夏天.jpg",
+      chapters: [
+        { order: 1,
+          kissUnknown: true
+        },
+        { order: 2,
+          kiss: [ 1 ]
+        },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 5.5,
+          kiss: [ 1 ]
+        },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 11.5 },
+        { order: 12,
+          kiss: [ { tags: [ { name: "框外" } ] } ]
+        },
+        { order: 13,
+          kiss: [ 1 ]
+        },
+        { order: 14,
+          kiss: [ { tags: [ { name: "脸颊" } ] } ]
+        },
+        { order: 15,
+          kiss: [ 1 ]
+        },
+        { order: 16,
+          kiss: [ { tags: [ { name: "拉丝" } ] } ]
+        }
+      ]
+    },
+    {
+      title: "与你一起的未知的夏天",
+      author: "きいやん",
+      cover: "assets/covers/与你一起的未知的夏天.jpg",
+      chapters: [
+        { order: 1,
+          kissUnknown: true
+        },
+        { order: 2,
+          kiss: [ 1 ]
+        },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 5.5,
+          kiss: [ 1 ]
+        },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 11.5 },
+        { order: 12,
+          kiss: [ { tags: [ { name: "框外" } ] } ]
+        },
+        { order: 13,
+          kiss: [ 1 ]
+        },
+        { order: 14,
+          kiss: [ { tags: [ { name: "脸颊" } ] } ]
+        },
+        { order: 15,
+          kiss: [ 1 ]
+        },
+        { order: 16,
+          kiss: [ { tags: [ { name: "拉丝" } ] } ]
         }
       ]
     }
