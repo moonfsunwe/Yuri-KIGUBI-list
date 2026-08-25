@@ -673,6 +673,7 @@
       title: "想吃掉我的非人少女",   
       altTitles: ["私を喰べたい、ひとでなし", "对我垂涎欲滴的非人少女"],
       author: "苗川采",
+      status: "连载中",
       cover: "assets/covers/想吃掉我的非人少女.jpg",
       chapters: [
         { order: 1 },
@@ -800,7 +801,7 @@
         { order: 18 },
         { order: 19,
           note: "ちぐび：单行本加页内容",
-          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝" } ] } ],
+          kiss: [ { tags: [ { name: "舌吻" } ] } ],
           nudity: [ { characters: "单行本加页内容" } ]
         }
       ]
@@ -816,10 +817,68 @@
         { order: 2 },
         { order: 3 },
         { order: 4,
-          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝" } ] } ]
         },
         { order: 5 },
         { order: 6 }
+      ]
+    },
+    {
+      title: "女孩们×吸血鬼",
+      author: "みかみてれん & 千種みのり",
+      status: "连载中",
+      cover: "assets/covers/女孩们×吸血鬼.jpg",
+      altTitles: ["ガールズ×ヴァンパイア"],
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 6.5 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16 },
+        { order: 17 },
+        { order: 18 },
+        { order: 19,
+          kiss: [ 1 ]
+        },
+        { order: 20 },
+        { order: 21 },
+        { order: 22 },
+        { order: 23 },
+        { order: 24 },
+        { order: 25 },
+        { order: 26,
+          kiss: [ 1 ]
+        },
+        { order: 27 },
+        { order: 28 },
+        { order: 29 },
+        { order: 30 },
+        { order: 31 },
+        { order: 32 },
+        { order: 33 },
+        { order: 34 },
+        { order: 35,
+          kiss: [ 1 ]
+        },
+        { order: 36,
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "喂饮" } ] } ]
+        },
+        { order: 37 },
+        { order: 38,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        }
       ]
     }
   ];
