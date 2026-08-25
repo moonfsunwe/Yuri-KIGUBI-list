@@ -151,10 +151,20 @@
     container.textContent = "";
 
     newChapterStates.forEach(function (state, index) {
-      container.appendChild(buildEditCell(index, state.kiss, state.nudity, function (half) {
-        cycleState(state, half);
-        renderNewChapterCells();
-      }, state.label));
+        container.appendChild(buildEditCell(
+          index,
+          state.kiss,
+          state.nudity,
+          function (half) {
+            cycleState(state, half);
+            renderNewChapterCells();
+          },
+          state.label,
+          function (deleteIndex) {
+            newChapterStates.splice(deleteIndex, 1);
+            renderNewChapterCells();
+          }
+        ));
 
       var next = newChapterStates[index + 1];
       if (next && isNormalChapterLabel(state.label) && isNormalChapterLabel(next.label)) {
@@ -270,10 +280,21 @@
     if (!container) return;
     container.textContent = "";
     modifyCurrent.forEach(function (state, index) {
-      container.appendChild(buildEditCell(index, state.kiss, state.nudity, function (half) {
-        cycleModifyState(state, half);
-        renderModifyCells();
-      }, state.label || String(index + 1)));
+      container.appendChild(buildEditCell(
+        index,
+        state.kiss,
+        state.nudity,
+        function (half) {
+          cycleModifyState(state, half);
+          renderModifyCells();
+        },
+        state.label || String(index + 1),
+        function (deleteIndex) {
+          modifyCurrent.splice(deleteIndex, 1);
+          modifyOriginal.splice(deleteIndex, 1);
+          renderModifyCells();
+        }
+      ));
 
       var next = modifyCurrent[index + 1];
       if (next && isNormalChapterLabel(state.label) && isNormalChapterLabel(next.label)) {
@@ -323,28 +344,65 @@
     state[half] = state[half] === "has" ? "none" : "has";
   }
 
-  function buildEditCell(chapterIndex, kissState, nudityState, onCycle, labelText) {
+  function buildEditCell(chapterIndex, kissState, nudityState, onCycle, labelText, onDelete) {
     var cell = A.makeEl("div", "edit-cell");
-    var label = labelText != null && labelText !== "" ? String(labelText) : String(chapterIndex + 1);
+    var label = labelText != null && labelText !== ""
+      ? String(labelText)
+      : String(chapterIndex + 1);
+
     cell.appendChild(A.makeEl("span", "cell-half kiss" + stateClass(kissState)));
     cell.appendChild(A.makeEl("span", "cell-half nudity" + stateClass(nudityState)));
     cell.appendChild(A.makeEl("span", "cell-slash"));
-    cell.appendChild(A.makeEl("span", "cell-num", label));
-    if (kissState === "unknown") cell.appendChild(A.makeEl("span", "cell-unknown kiss", "?"));
-    if (nudityState === "unknown") cell.appendChild(A.makeEl("span", "cell-unknown nudity", "?"));
+
+    /*
+    * 只有 .5 特典章节可以删除
+    */
+    var num = A.makeEl("span", "cell-num", label);
+
+    if (/^\d+\.5$/.test(label) && onDelete) {
+      num.classList.add("cell-num-delete");
+      num.setAttribute("title", "点击删除第" + label + "章");
+
+      num.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        onDelete(chapterIndex);
+      });
+    }
+
+    cell.appendChild(num);
+
+    if (kissState === "unknown") {
+      cell.appendChild(A.makeEl("span", "cell-unknown kiss", "?"));
+    }
+
+    if (nudityState === "unknown") {
+      cell.appendChild(A.makeEl("span", "cell-unknown nudity", "?"));
+    }
 
     var hitKiss = document.createElement("button");
     hitKiss.type = "button";
     hitKiss.className = "cell-half-hit kiss";
-    hitKiss.setAttribute("aria-label", "第" + label + "章 亲吻：当前" + stateLabel(kissState) + "，点击切换");
-    hitKiss.addEventListener("click", function () { onCycle("kiss"); });
+    hitKiss.setAttribute(
+      "aria-label",
+      "第" + label + "章 亲吻：当前" + stateLabel(kissState) + "，点击切换"
+    );
+    hitKiss.addEventListener("click", function () {
+      onCycle("kiss");
+    });
     cell.appendChild(hitKiss);
 
     var hitNudity = document.createElement("button");
     hitNudity.type = "button";
     hitNudity.className = "cell-half-hit nudity";
-    hitNudity.setAttribute("aria-label", "第" + label + "章 ちくび：当前" + stateLabel(nudityState) + "，点击切换");
-    hitNudity.addEventListener("click", function () { onCycle("nudity"); });
+    hitNudity.setAttribute(
+      "aria-label",
+      "第" + label + "章 ちくび：当前" + stateLabel(nudityState) + "，点击切换"
+    );
+    hitNudity.addEventListener("click", function () {
+      onCycle("nudity");
+    });
     cell.appendChild(hitNudity);
 
     return cell;

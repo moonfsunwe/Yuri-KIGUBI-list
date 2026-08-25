@@ -1202,6 +1202,37 @@ img { max-width: 100%; display: block; }
   border-color: var(--rose);
   transform: translateY(-2px);
 }
+/* .5 特典章节：数字可删除 */
+.cell-num-delete {
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+.cell-num-delete::after {
+  content: "×";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #d33;
+  font-size: 1.25em;
+  font-weight: 900;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.cell-num-delete:hover {
+  color: transparent;
+}
+
+.cell-num-delete:hover::after {
+  opacity: 1;
+}
 .edit-cell { position: relative; width: 64px; height: 64px; border-radius: 15px; overflow: hidden; background: #efe6dd; border: 1px solid var(--line); }
 .edit-cell .cell-num {
   position: absolute;
@@ -1261,7 +1292,7 @@ img { max-width: 100%; display: block; }
   border: 0;
   background: transparent;
   cursor: pointer;
-  z-index: 6;
+  z-index: 4;
   padding: 0;
 }
 .edit-cell .cell-half-hit.kiss { clip-path: polygon(0 0, 100% 0, 0 100%); }
