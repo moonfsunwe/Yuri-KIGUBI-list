@@ -361,7 +361,6 @@
 
     if (/^\d+\.5$/.test(label) && onDelete) {
       num.classList.add("cell-num-delete");
-      num.setAttribute("title", "点击删除第" + label + "章");
 
       num.addEventListener("click", function (event) {
         event.preventDefault();
