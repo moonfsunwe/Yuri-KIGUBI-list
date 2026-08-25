@@ -868,7 +868,7 @@
       cover: "assets/covers/与你一起的未知的夏天.jpg",
       chapters: [
         { order: 1,
-          kissUnknown: true
+          kiss: [ 1 ]
         },
         { order: 2,
           kiss: [ 1 ]
@@ -892,9 +892,7 @@
         { order: 13,
           kiss: [ 1 ]
         },
-        { order: 14,
-          kiss: [ { tags: [ { name: "脸颊" } ] } ]
-        },
+        { order: 14},
         { order: 15,
           kiss: [ 1 ]
         },
@@ -908,9 +906,7 @@
       author: "きいやん",
       cover: "assets/covers/与你一起的未知的夏天.jpg",
       chapters: [
-        { order: 1,
-          kissUnknown: true
-        },
+        { order: 1 },
         { order: 2,
           kiss: [ 1 ]
         },
@@ -933,9 +929,7 @@
         { order: 13,
           kiss: [ 1 ]
         },
-        { order: 14,
-          kiss: [ { tags: [ { name: "脸颊" } ] } ]
-        },
+        { order: 14 },
         { order: 15,
           kiss: [ 1 ]
         },

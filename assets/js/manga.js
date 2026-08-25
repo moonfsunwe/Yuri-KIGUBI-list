@@ -132,8 +132,17 @@
       + (nudityUnknown ? "（ちくび情况未知）" : (hasNudity ? "（ちくび记录）" : "（无ちくび记录）"));
     node.setAttribute("aria-label", aria);
 
-    node.appendChild(A.makeEl("span", "node-half kiss" + (kissUnknown ? " unknown" : (hasKiss ? " on" : ""))));
-    node.appendChild(A.makeEl("span", "node-half nudity" + (nudityUnknown ? " unknown" : (hasNudity ? " on" : ""))));
+    node.appendChild(A.makeEl(
+      "span",
+      "node-half kiss" +
+        (kissUnknown ? " unknown" : (hasKiss && !chapter.kissNoColor ? " on" : ""))
+    ));
+
+    node.appendChild(A.makeEl(
+      "span",
+      "node-half nudity" +
+        (nudityUnknown ? " unknown" : (hasNudity && !chapter.nudityNoColor ? " on" : ""))
+    ));
     node.appendChild(A.makeEl("span", "node-slash"));
     node.appendChild(A.makeEl("span", "node-num", String(chapter.order)));
     if (kissUnknown) node.appendChild(A.makeEl("span", "node-unknown kiss", "?"));
