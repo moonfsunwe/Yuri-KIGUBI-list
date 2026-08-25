@@ -868,7 +868,7 @@
       cover: "assets/covers/与你一起的未知的夏天.jpg",
       chapters: [
         { order: 1,
-          kiss: [ 1 ]
+          kiss: [ { characters: "开头彩页" } ]
         },
         { order: 2,
           kiss: [ 1 ]
@@ -892,44 +892,10 @@
         { order: 13,
           kiss: [ 1 ]
         },
-        { order: 14},
-        { order: 15,
-          kiss: [ 1 ]
+        { order: 14,
+          kiss: [ { characters: "虽然没有亲吻但是有吻脸颊", note: "其他漫画没有这条不代表就没有吻脸颊，该信息仅因为提供者专门提供而补充说明" } ],
+          kissNoColor: true
         },
-        { order: 16,
-          kiss: [ { tags: [ { name: "拉丝" } ] } ]
-        }
-      ]
-    },
-    {
-      title: "与你一起的未知的夏天",
-      author: "きいやん",
-      cover: "assets/covers/与你一起的未知的夏天.jpg",
-      chapters: [
-        { order: 1 },
-        { order: 2,
-          kiss: [ 1 ]
-        },
-        { order: 3 },
-        { order: 4 },
-        { order: 5 },
-        { order: 5.5,
-          kiss: [ 1 ]
-        },
-        { order: 6 },
-        { order: 7 },
-        { order: 8 },
-        { order: 9 },
-        { order: 10 },
-        { order: 11 },
-        { order: 11.5 },
-        { order: 12,
-          kiss: [ { tags: [ { name: "框外" } ] } ]
-        },
-        { order: 13,
-          kiss: [ 1 ]
-        },
-        { order: 14 },
         { order: 15,
           kiss: [ 1 ]
         },
