@@ -16,7 +16,7 @@
         { order: 4 },
         { order: 5 },
         { order: 6,
-          kiss: [ { characters: "灯子 x 侑", tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { characters: "灯子 x 侑", tags: [ { name: "遮挡" } ] } ],
         },
         { order: 7 },
         { order: 8 },
@@ -24,7 +24,7 @@
         { order: 10 },
         { order: 11 },
         { order: 12,
-          kiss: [ { characters: "学姐 x 沙弥香", tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { characters: "学姐 x 沙弥香", tags: [ { name: "遮挡" } ] } ],
         },
         { order: 13 },
         { order: 14 },
@@ -141,7 +141,7 @@
       cover: "assets/covers/梦想和恋爱划算不来.jpg",
       chapters: [
         { order: 1,
-          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { tags: [ { name: "遮挡" } ] } ],
         },
         { order: 2,
           kiss: [ 1 ],
@@ -159,7 +159,7 @@
           kiss: [ { tags: [ { name: "舌吻"  } ] } ],
         },
         { order: 8.5,
-          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { tags: [ { name: "遮挡" } ] } ],
         }
       ]
     },
@@ -356,7 +356,7 @@
         { order: 15 },
         { order: 16 },
         { order: 17,
-          kiss: [ { tags: [ { name: "环境遮挡", note: "被门遮挡" } ]  } ],
+          kiss: [ { tags: [ { name: "遮挡", note: "被门遮挡" } ]  } ],
         },
         { order: 18 }
       ]
@@ -390,7 +390,7 @@
         },
         { order: 8 },
         { order: 9,
-          kiss: [ { tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { tags: [ { name: "遮挡" } ] } ],
         },
         { order: 10,
           kiss: [ { tags: [ { name: "舌吻", pink: true } ] } ],
@@ -441,7 +441,7 @@
         { order: 12 },
         { order: 13 },
         { order: 14,
-          kiss: [ { characters: "主cp", tags: [ { name: "空吻", note: "中间隔了一段距离强行说亲上了" } ] }, { characters: "副cp", tags: [ { name: "人物遮挡" } ] } ],
+          kiss: [ { characters: "主cp", tags: [ { name: "空吻", note: "中间隔了一段距离强行说亲上了" } ] }, { characters: "副cp", tags: [ { name: "遮挡" } ] } ],
         }
       ]
     },

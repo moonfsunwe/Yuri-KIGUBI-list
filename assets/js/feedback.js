@@ -910,7 +910,7 @@
       text += "补充说明：" + extraNote + "\n";
     }
 
-    text += "[code]" + body + "\n[/code]\n[/collapse]";
+    text += "[code]" + body + "[/code]\n[/collapse]";
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch(function () {
