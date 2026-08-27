@@ -1,6 +1,285 @@
 /* ==========================================================================
    KIGUBI LIST — 站点样式
    ========================================================================== */
+.group-intro {
+max-width: 960px;
+margin: 0 auto;
+}
+
+.group-intro section {
+margin-bottom: 56px;
+}
+
+.group-intro h2 {
+margin-bottom: 14px;
+}
+
+.group-intro h3 {
+margin-top: 0;
+}
+
+.section-desc {
+color: var(--text-muted);
+margin-top: -4px;
+margin-bottom: 22px;
+}
+
+/* ---------- 前言提示框 ---------- */
+
+.info-card {
+margin: 28px 0;
+padding: 22px 24px;
+border: 1px solid var(--line);
+border-left: 4px solid var(--accent);
+border-radius: var(--radius-lg);
+background: var(--surface-soft);
+}
+
+.info-card-title {
+margin-bottom: 10px;
+font-weight: 700;
+font-size: 1.05rem;
+}
+
+/* ---------- 两种方法 ---------- */
+
+.method-grid {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 18px;
+}
+
+.method-card {
+display: flex;
+gap: 18px;
+padding: 24px;
+border: 1px solid var(--line);
+border-radius: var(--radius-lg);
+background: var(--surface);
+}
+
+.method-card-highlight {
+border-color: var(--accent);
+background: var(--surface-soft);
+}
+
+.method-number {
+flex: 0 0 auto;
+font-size: 1.7rem;
+font-weight: 800;
+opacity: .3;
+}
+
+.method-content {
+min-width: 0;
+}
+
+.method-content h3 {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.method-badge,
+.role-note {
+display: inline-block;
+padding: 3px 8px;
+border-radius: 999px;
+font-size: .72rem;
+font-weight: 600;
+background: var(--accent);
+color: var(--accent-contrast);
+}
+
+.method-card ul {
+margin-bottom: 0;
+}
+
+.method-result {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-top: 18px;
+}
+
+.method-result span {
+padding: 5px 10px;
+border-radius: 999px;
+background: var(--surface);
+border: 1px solid var(--line);
+font-size: .82rem;
+}
+
+/* ---------- 小组理念 ---------- */
+
+.mission-card {
+display: flex;
+gap: 20px;
+padding: 28px;
+border-radius: var(--radius-lg);
+background: var(--surface-soft);
+border: 1px solid var(--line);
+}
+
+.mission-icon {
+flex: 0 0 auto;
+font-size: 2rem;
+}
+
+.mission-card h2 {
+margin-top: 0;
+}
+
+.mission-main {
+margin-bottom: 0;
+}
+
+/* ---------- 敌人 ---------- */
+
+.enemy-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 16px;
+}
+
+.enemy-card {
+padding: 22px;
+border: 1px solid var(--line);
+border-radius: var(--radius-lg);
+background: var(--surface);
+}
+
+.enemy-header {
+margin-bottom: 14px;
+}
+
+.enemy-header h3 {
+margin: 5px 0 0;
+font-size: 1.3rem;
+}
+
+.enemy-level {
+font-size: .7rem;
+font-weight: 700;
+letter-spacing: .08em;
+opacity: .55;
+}
+
+.enemy-boss {
+border-color: var(--accent);
+}
+
+.enemy-boss .enemy-level {
+opacity: 1;
+}
+
+/* ---------- 职务 ---------- */
+
+.role-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 16px;
+}
+
+.role-card {
+padding: 24px;
+border: 1px solid var(--line);
+border-radius: var(--radius-lg);
+background: var(--surface);
+}
+
+.role-icon {
+margin-bottom: 14px;
+font-size: 1.7rem;
+opacity: .65;
+}
+
+.role-card h3 {
+margin-bottom: 6px;
+}
+
+.role-note {
+margin-bottom: 12px;
+background: var(--surface-soft);
+color: var(--text-muted);
+}
+
+/* ---------- 加群 ---------- */
+
+.join-section {
+margin-top: 70px;
+}
+
+.join-content {
+padding: 42px 32px;
+text-align: center;
+border-radius: var(--radius-lg);
+border: 1px solid var(--line);
+background: var(--surface-soft);
+}
+
+.join-label {
+font-size: .72rem;
+font-weight: 700;
+letter-spacing: .15em;
+opacity: .5;
+}
+
+.join-content h2 {
+margin: 8px 0 10px;
+}
+
+.join-content p {
+max-width: 620px;
+margin: 0 auto 24px;
+color: var(--text-muted);
+}
+
+.qq-button {
+display: inline-flex;
+align-items: center;
+gap: 12px;
+padding: 11px 20px;
+border-radius: 999px;
+text-decoration: none;
+font-weight: 700;
+background: var(--accent);
+color: var(--accent-contrast);
+transition: transform .15s ease, opacity .15s ease;
+}
+
+.qq-button:hover {
+transform: translateY(-2px);
+opacity: .9;
+}
+
+.qq-button span {
+font-size: 1.1em;
+}
+
+/* ---------- 手机端 ---------- */
+
+@media (max-width: 720px) {
+
+.method-grid,
+.enemy-grid,
+.role-grid {
+grid-template-columns: 1fr;
+}
+
+.method-card {
+padding: 20px;
+}
+
+.mission-card {
+padding: 22px;
+}
+
+.join-content {
+padding: 34px 22px;
+}
+
+}
 
 :root {
   --paper: #fbf6f0;
@@ -1461,11 +1740,11 @@ img { max-width: 100%; display: block; }
 
 /* ---------- 审核 / 静态文稿页 ---------- */
 .prose-shell { max-width: 820px; margin: 0 auto; }
-.prose { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); }
+.prose { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 36px 40px;; box-shadow: var(--shadow-sm); }
 .prose h2 { font-family: var(--font-display); font-size: 20px; margin: 26px 0 10px; }
 .prose h2:first-child { margin-top: 0; }
 .prose h3 { font-family: var(--font-display); font-size: 16px; margin: 18px 0 8px; }
-.prose p, .prose li { color: var(--ink-soft); font-size: 14.5px; }
+.prose p, .prose li { color: var(--ink-soft); font-size: 14.5px; line-height: 1.85; }
 .prose code {
   background: #f5ece4;
   padding: 2px 7px;
