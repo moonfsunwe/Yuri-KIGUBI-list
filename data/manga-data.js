@@ -1229,6 +1229,78 @@
         },
         { order: 14 }
       ]
+    },
+    {
+      title: "堕天使小高音的复仇",
+      altTitles: ["堕天使そぷらのちゃんの復讐"],
+      author: "藤本セツナ",
+      status: "连载中",
+      cover: "assets/covers/堕天使小高音的复仇.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13 },
+        { order: 14 },
+        { order: 15 },
+        { order: 16 },
+        { order: 17 },
+        { order: 18 },
+        { order: 19 },
+        { order: 20 }
+      ]
+    },
+    {
+      title: "无用圣女与无能王女～被召唤至异世界的零魔力圣女救国纪～",
+      altTitles:["無力聖女と無能王女～魔力ゼロで召喚された聖女の異世界救国記～"],
+      author: "玉崎たま",
+      status: "连载中",
+      cover: "assets/covers/无用圣女与无能王女～被召唤至异世界的零魔力圣女救国纪～.jpg",
+      chapters: [
+        { order: 1,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 2 },
+        { order: 3 },
+        { order: 4,
+          kiss: [ 1 ]
+        },
+        { order: 5 },
+        { order: 5.5 },
+        { order: 6 },
+        { order: 7,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 7.5 },
+        { order: 8 },
+        { order: 9,
+          kiss: [ { tags: [ { name: "拉丝" } ] } ]
+        },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13 },
+        { order: 14,
+          kiss: [ { characters: "副cp" } ]
+        },
+        { order: 15 },
+        { order: 16 },
+        { order: 17 },
+        { order: 18 },
+        { order: 19 },
+        { order: 20,
+          kiss: [ { tags: [ { name: "遮挡" } ] } ]
+        }
+      ]
     }
   ];
 })();
