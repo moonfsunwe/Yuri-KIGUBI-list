@@ -1301,6 +1301,74 @@
           kiss: [ { tags: [ { name: "遮挡" } ] } ]
         }
       ]
+    },
+    {
+      title: "有谁知道该怎么管教这只大狼吗！？",
+      altTitles: ["誰かオオカミさんのしつけ方知りませんか！？"],
+      author: "餡実ツキ",
+      status: "连载中",
+      cover: "assets/covers/有谁知道该怎么管教这只大狼吗！？.jpg",
+      chapters: [
+        { order: 0,
+          title: "24年8月至25年8月在FANBOX上发的短篇",
+          kiss: [ { tags: [ { name: "舌吻" } ] } ],
+          nudity: [ 1 ]
+        },
+        { order: 1,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 }
+      ]
+    },
+    {
+      title: "宝宝卧室宝宝龙",
+      altTitles: ["子供部屋ドラゴン"],
+      author: "＊sow＊",
+      status: "连载中",
+      cover: "assets/covers/宝宝卧室宝宝龙.jpg",
+      chapters: [
+        { order: 1,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 2,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 3 },
+        { order: 4,
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝" } ] } ]
+        },
+        { order: 5,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 6 },
+        { order: 7,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 8,
+          kiss: [ { tags: [ { name: "遮挡" } ] } ]
+        },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12,
+          kiss: [ 1 ]
+        },
+        { order: 13 },
+        { order: 14,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 15,
+          characters: "NPC",
+          kiss: [ 1 ]
+        },
+        { order: 16,
+          kiss: [ { tags: [ { name: "空吻" } ] } ]
+        },
+        { order: 17 }
+      ]
     }
   ];
 })();
