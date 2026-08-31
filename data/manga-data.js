@@ -1369,6 +1369,27 @@
         },
         { order: 17 }
       ]
+    },
+    {
+      title: "无法专注于学习",
+      altTitles: ["勉強に集中できない"],
+      author: "みずき",
+      cover: "assets/covers/无法专注于学习.webp",
+      chapters: [
+        { order: 1,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        }
+      ]
+    },
+    {
+      title: "青梅竹马的方程式",
+      author: "三谷てぃつ丸",
+      cover: "assets/covers/青梅竹马的方程式.webp",
+      chapters: [
+        { order: 1,
+          kiss: [ 1 ]
+        }
+      ]
     }
   ];
 })();
