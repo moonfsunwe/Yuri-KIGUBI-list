@@ -1390,6 +1390,66 @@
           kiss: [ 1 ]
         }
       ]
+    },
+    {
+      title: "向笨蛋告白",
+      altTitles: ["バカに告白"],
+      author: "矢坂しゅう",
+      status: "连载中",
+      cover: "assets/covers/向笨蛋告白.jpg",
+      chapters: [
+        { order: 1 },
+        { order: 2 },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10 },
+        { order: 11 },
+        { order: 12 },
+        { order: 13,
+          kiss: [ 1 ]
+        },
+        { order: 14,
+          kiss: [ 1 ]
+        },
+        { order: 15 }
+      ]
+    },
+    {
+      title: "只有颜值是优点的同学 以猛烈攻势向我扑来的百合故事",
+      altTitles: ["顔だけ良いクラスメイトが、やたらとグイグイ来る百合の話。"],
+      author: "能代リョウ & はちこ",
+      status: "连载中",
+      cover: "assets/covers/只有颜值是优点的同学 以猛烈攻势向我扑来的百合故事.jpg",
+      chapters: [
+        { order: 1,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 2,
+          kiss: [ { tags: [ { name: "舌吻" } ] } ]
+        },
+        { order: 3 },
+        { order: 4 },
+        { order: 5 },
+        { order: 6 },
+        { order: 7 },
+        { order: 8 },
+        { order: 9 },
+        { order: 10,
+          kiss: [ { tags: [ { name: "舌吻" }, { name: "拉丝" } ] } ]
+        },
+        { order: 11,
+          kiss: [ 1 ]
+        },
+        { order: 12,
+          kiss: [ 1 ]
+        },
+        { order: 13 }
+      ]
     }
   ];
 })();
